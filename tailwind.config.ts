@@ -57,6 +57,28 @@ export default {
           border: "hsl(var(--sidebar-border))",
           ring: "hsl(var(--sidebar-ring))",
         },
+        liana: {
+          DEFAULT: "hsl(var(--liana))",
+          foreground: "hsl(var(--liana-foreground))",
+        },
+        stefany: {
+          DEFAULT: "hsl(var(--stefany))",
+          foreground: "hsl(var(--stefany-foreground))",
+        },
+        marilia: {
+          DEFAULT: "hsl(var(--marilia))",
+          foreground: "hsl(var(--marilia-foreground))",
+        },
+        nosso: {
+          DEFAULT: "hsl(var(--nosso))",
+          foreground: "hsl(var(--nosso-foreground))",
+        },
+      },
+      boxShadow: {
+        sm: "var(--shadow-sm)",
+        md: "var(--shadow-md)",
+        lg: "var(--shadow-lg)",
+        xl: "var(--shadow-xl)",
       },
       borderRadius: {
         lg: "var(--radius)",
