@@ -3,16 +3,64 @@ import { MonthNavigator } from "@/components/MonthNavigator";
 import { StatsCard } from "@/components/StatsCard";
 import { useTransactions } from "@/hooks/useTransactions";
 import { useConfig } from "@/hooks/useConfig";
-import { formatCurrency } from "@/lib/formatters";
-import { TrendingUp, TrendingDown, Wallet, Target, AlertCircle } from "lucide-react";
+import { formatCurrency, getMonthReference } from "@/lib/formatters";
+import { TrendingUp, TrendingDown, Wallet, Target, AlertCircle, Copy } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { PieChart, Pie, Cell, ResponsiveContainer, Legend, BarChart, Bar, XAxis, YAxis, Tooltip } from "recharts";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Button } from "@/components/ui/button";
+import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
 
 export default function Dashboard() {
   const [currentDate, setCurrentDate] = useState(new Date());
-  const { transactions, isLoading } = useTransactions(currentDate);
+  const { transactions, isLoading, addTransaction } = useTransactions(currentDate);
   const { config } = useConfig();
+
+  const handleDuplicarMesAnterior = async () => {
+    const mesAnterior = new Date(currentDate);
+    mesAnterior.setMonth(mesAnterior.getMonth() - 1);
+    const mesReferenciaAnterior = getMonthReference(mesAnterior);
+
+    try {
+      const { data: transacoesAnterior, error } = await supabase
+        .from("transacoes")
+        .select("*")
+        .eq("mes_referencia", mesReferenciaAnterior)
+        .eq("tipo", "conta");
+
+      if (error) throw error;
+
+      if (!transacoesAnterior || transacoesAnterior.length === 0) {
+        toast.info("Nenhuma conta fixa encontrada no mês anterior");
+        return;
+      }
+
+      const novasMesReferencia = getMonthReference(currentDate);
+      const novasTransacoes = transacoesAnterior.map((t: any) => ({
+        data: t.data,
+        descricao: t.descricao,
+        valor: t.valor,
+        tipo: t.tipo,
+        categoria: t.categoria,
+        responsavel: t.responsavel,
+        forma_pagamento: t.forma_pagamento,
+        parcelas: t.parcelas,
+        cartao: t.cartao,
+        status: "A Pagar" as const,
+        mes_referencia: novasMesReferencia,
+      }));
+
+      for (const transacao of novasTransacoes) {
+        await addTransaction.mutateAsync(transacao);
+      }
+
+      toast.success(`${novasTransacoes.length} contas fixas duplicadas com sucesso!`);
+    } catch (error) {
+      console.error(error);
+      toast.error("Erro ao duplicar mês anterior");
+    }
+  };
 
   const stats = useMemo(() => {
     const receitas = transactions
@@ -72,7 +120,13 @@ export default function Dashboard() {
     <div className="space-y-6 p-6">
       <div className="flex items-center justify-between">
         <h1 className="text-3xl font-bold">Visão Geral 💰</h1>
-        <MonthNavigator currentDate={currentDate} onDateChange={setCurrentDate} />
+        <div className="flex gap-4 items-center">
+          <Button variant="outline" onClick={handleDuplicarMesAnterior} className="gap-2">
+            <Copy className="h-4 w-4" />
+            Duplicar Mês Anterior
+          </Button>
+          <MonthNavigator currentDate={currentDate} onDateChange={setCurrentDate} />
+        </div>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">

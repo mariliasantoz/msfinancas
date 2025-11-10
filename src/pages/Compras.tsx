@@ -1,19 +1,91 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { MonthNavigator } from "@/components/MonthNavigator";
 import { useTransactions } from "@/hooks/useTransactions";
 import { formatCurrency, formatDate } from "@/lib/formatters";
 import { Button } from "@/components/ui/button";
-import { Plus } from "lucide-react";
+import { Plus, Pencil, Trash2 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
+import { TransactionDialog } from "@/components/TransactionDialog";
+import { FilterBar } from "@/components/FilterBar";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
+import { toast } from "sonner";
 
 export default function Compras() {
   const [currentDate, setCurrentDate] = useState(new Date());
-  const { transactions, isLoading } = useTransactions(currentDate);
+  const { transactions, isLoading, addTransaction, updateTransaction, deleteTransaction } = useTransactions(currentDate);
+  
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [editingTransaction, setEditingTransaction] = useState<any>(null);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
 
-  const compras = transactions.filter((t) => t.tipo === "compra");
+  const [searchValue, setSearchValue] = useState("");
+  const [responsavelFilter, setResponsavelFilter] = useState("Todos");
+  const [cartaoFilter, setCartaoFilter] = useState("Todos");
+  const [categoriaFilter, setCategoriaFilter] = useState("Todas");
+  const [statusFilter, setStatusFilter] = useState("Todos");
+
+  const compras = useMemo(() => {
+    return transactions
+      .filter((t) => t.tipo === "compra")
+      .filter((t) => {
+        const matchesSearch = searchValue === "" || 
+          t.descricao.toLowerCase().includes(searchValue.toLowerCase()) ||
+          t.valor.toString().includes(searchValue);
+        const matchesResponsavel = responsavelFilter === "Todos" || t.responsavel === responsavelFilter;
+        const matchesCartao = cartaoFilter === "Todos" || t.cartao === cartaoFilter;
+        const matchesCategoria = categoriaFilter === "Todas" || t.categoria === categoriaFilter;
+        const matchesStatus = statusFilter === "Todos" || t.status === statusFilter;
+        return matchesSearch && matchesResponsavel && matchesCartao && matchesCategoria && matchesStatus;
+      });
+  }, [transactions, searchValue, responsavelFilter, cartaoFilter, categoriaFilter, statusFilter]);
+
   const totalCompras = compras.reduce((sum, c) => sum + Number(c.valor), 0);
+
+  const handleSave = async (transaction: any) => {
+    try {
+      if (editingTransaction) {
+        await updateTransaction.mutateAsync({ id: editingTransaction.id, ...transaction });
+        toast.success("Compra atualizada com sucesso!");
+      } else {
+        await addTransaction.mutateAsync(transaction);
+        toast.success("Compra adicionada com sucesso!");
+      }
+      setEditingTransaction(null);
+    } catch (error) {
+      toast.error("Erro ao salvar compra");
+    }
+  };
+
+  const handleEdit = (transaction: any) => {
+    setEditingTransaction(transaction);
+    setDialogOpen(true);
+  };
+
+  const handleDeleteClick = (id: string) => {
+    setDeletingId(id);
+    setDeleteDialogOpen(true);
+  };
+
+  const handleDeleteConfirm = async () => {
+    if (deletingId) {
+      try {
+        await deleteTransaction.mutateAsync(deletingId);
+        toast.success("Compra excluída com sucesso!");
+      } catch (error) {
+        toast.error("Erro ao excluir compra");
+      }
+      setDeletingId(null);
+      setDeleteDialogOpen(false);
+    }
+  };
+
+  const handleAddNew = () => {
+    setEditingTransaction(null);
+    setDialogOpen(true);
+  };
 
   if (isLoading) {
     return <div className="flex items-center justify-center h-full"><p>Carregando...</p></div>;
@@ -33,7 +105,7 @@ export default function Compras() {
               <p className="text-sm font-medium text-muted-foreground">Total de Compras</p>
               <p className="text-4xl font-bold text-stefany-foreground">{formatCurrency(totalCompras)}</p>
             </div>
-            <Button size="lg" className="gap-2">
+            <Button size="lg" className="gap-2" onClick={handleAddNew}>
               <Plus className="h-5 w-5" />
               Nova Compra
             </Button>
@@ -46,17 +118,32 @@ export default function Compras() {
           <CardTitle>Lista de Compras</CardTitle>
         </CardHeader>
         <CardContent>
+          <FilterBar
+            searchValue={searchValue}
+            responsavelValue={responsavelFilter}
+            cartaoValue={cartaoFilter}
+            categoriaValue={categoriaFilter}
+            statusValue={statusFilter}
+            onSearchChange={setSearchValue}
+            onResponsavelChange={setResponsavelFilter}
+            onCartaoChange={setCartaoFilter}
+            onCategoriaChange={setCategoriaFilter}
+            onStatusChange={setStatusFilter}
+          />
+
           {compras.length > 0 ? (
             <Table>
               <TableHeader>
                 <TableRow>
                   <TableHead>Data</TableHead>
                   <TableHead>Descrição</TableHead>
+                  <TableHead>Categoria</TableHead>
+                  <TableHead>Responsável</TableHead>
                   <TableHead>Cartão</TableHead>
                   <TableHead>Parcelas</TableHead>
-                  <TableHead>Responsável</TableHead>
                   <TableHead>Status</TableHead>
                   <TableHead className="text-right">Valor</TableHead>
+                  <TableHead className="text-right">Ações</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -64,9 +151,10 @@ export default function Compras() {
                   <TableRow key={compra.id}>
                     <TableCell>{formatDate(compra.data)}</TableCell>
                     <TableCell className="font-medium">{compra.descricao}</TableCell>
-                    <TableCell>{compra.cartao || "-"}</TableCell>
-                    <TableCell>{compra.parcelas ? `${compra.parcelas}x` : "À vista"}</TableCell>
+                    <TableCell>{compra.categoria}</TableCell>
                     <TableCell>{compra.responsavel}</TableCell>
+                    <TableCell>{compra.cartao || "-"}</TableCell>
+                    <TableCell>{compra.parcelas ? `${compra.parcelas}x` : "-"}</TableCell>
                     <TableCell>
                       <Badge variant={compra.status === "Pago" ? "default" : "secondary"}>
                         {compra.status}
@@ -74,6 +162,24 @@ export default function Compras() {
                     </TableCell>
                     <TableCell className="text-right font-bold text-stefany-foreground">
                       {formatCurrency(Number(compra.valor))}
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <div className="flex gap-2 justify-end">
+                        <Button
+                          size="icon"
+                          variant="ghost"
+                          onClick={() => handleEdit(compra)}
+                        >
+                          <Pencil className="h-4 w-4" />
+                        </Button>
+                        <Button
+                          size="icon"
+                          variant="ghost"
+                          onClick={() => handleDeleteClick(compra.id)}
+                        >
+                          <Trash2 className="h-4 w-4 text-destructive" />
+                        </Button>
+                      </div>
                     </TableCell>
                   </TableRow>
                 ))}
@@ -86,6 +192,30 @@ export default function Compras() {
           )}
         </CardContent>
       </Card>
+
+      <TransactionDialog
+        open={dialogOpen}
+        onOpenChange={setDialogOpen}
+        transaction={editingTransaction}
+        tipo="compra"
+        onSave={handleSave}
+        currentDate={currentDate}
+      />
+
+      <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Confirmar exclusão</AlertDialogTitle>
+            <AlertDialogDescription>
+              Tem certeza que deseja excluir esta compra? Esta ação não pode ser desfeita.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogAction onClick={handleDeleteConfirm}>Excluir</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
