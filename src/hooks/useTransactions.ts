@@ -41,7 +41,6 @@ export function useTransactions(currentDate: Date) {
       // Se for parcelado, criar múltiplas transações
       if (transaction.forma_pagamento === "Parcelado" && transaction.parcelas && transaction.parcelas > 1) {
         const grupoParcelasId = crypto.randomUUID();
-        const valorParcela = transaction.valor / transaction.parcelas;
         const transacoes = [];
 
         for (let i = 1; i <= transaction.parcelas; i++) {
@@ -51,7 +50,7 @@ export function useTransactions(currentDate: Date) {
           transacoes.push({
             ...transaction,
             descricao: `${transaction.descricao} - Parcela ${i}/${transaction.parcelas}`,
-            valor: valorParcela,
+            valor: transaction.valor,
             mes_referencia: mesRef,
             grupo_parcelas: grupoParcelasId,
           });
