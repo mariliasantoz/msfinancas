@@ -140,7 +140,7 @@ export default function ComprasAgrupadas() {
           const todasPagas = comprasCartao.every((c) => c.status === "Pago");
           const nomeCartao = cartaoId === "sem-cartao" ? "Sem cartão" : (cartoesMap[cartaoId] || cartaoId);
           const isExpanded = expandedCards[cartaoId] || false;
-          const comprasVisiveis = isExpanded ? comprasCartao : comprasCartao.slice(0, 5);
+          const comprasVisiveis = isExpanded ? comprasCartao : comprasCartao.slice(0, 3);
           const totalComprasCartao = comprasCartao.length;
 
           return (
@@ -203,7 +203,7 @@ export default function ComprasAgrupadas() {
                   </TableBody>
                 </Table>
                 
-                {totalComprasCartao > 5 && (
+                {totalComprasCartao > 3 && (
                   <div className="flex items-center justify-between pt-4 border-t">
                     <p className="text-sm text-muted-foreground">
                       Mostrando {comprasVisiveis.length} de {totalComprasCartao} compras
