@@ -1,6 +1,7 @@
 import { useState, useMemo } from "react";
 import { MonthNavigator } from "@/components/MonthNavigator";
 import { useTransactions } from "@/hooks/useTransactions";
+import { useCartoes } from "@/hooks/useCartoes";
 import { formatCurrency, formatDate } from "@/lib/formatters";
 import { useMonth } from "@/contexts/MonthContext";
 import { Button } from "@/components/ui/button";
@@ -14,6 +15,7 @@ import { toast } from "sonner";
 export default function ComprasAgrupadas() {
   const { currentDate, setCurrentDate } = useMonth();
   const { transactions, isLoading, addTransaction, updateTransaction, deleteTransaction } = useTransactions(currentDate);
+  const { cartoes } = useCartoes();
   
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingTransaction, setEditingTransaction] = useState<any>(null);
@@ -21,21 +23,28 @@ export default function ComprasAgrupadas() {
   const [deletingId, setDeletingId] = useState<string | null>(null);
 
   const compras = transactions.filter((t) => t.tipo === "compra");
-  
+
+  const cartoesMap = useMemo(() => {
+    return cartoes.reduce((acc, cartao) => {
+      acc[cartao.id] = cartao.nome;
+      return acc;
+    }, {} as Record<string, string>);
+  }, [cartoes]);
+
   const comprasPorCartao = useMemo(() => {
     const grupos: Record<string, any[]> = {};
     compras.forEach((compra) => {
-      const cartao = compra.cartao || "Sem cartão";
-      if (!grupos[cartao]) grupos[cartao] = [];
-      grupos[cartao].push(compra);
+      const cartaoId = compra.cartao || "sem-cartao";
+      if (!grupos[cartaoId]) grupos[cartaoId] = [];
+      grupos[cartaoId].push(compra);
     });
     return grupos;
   }, [compras]);
 
   const totalCompras = compras.reduce((sum, c) => sum + Number(c.valor), 0);
 
-  const handleMarcarCartaoPago = async (cartao: string, isPago: boolean) => {
-    const comprasCartao = comprasPorCartao[cartao];
+  const handleMarcarCartaoPago = async (cartaoId: string, isPago: boolean) => {
+    const comprasCartao = comprasPorCartao[cartaoId];
     try {
       for (const compra of comprasCartao) {
         await updateTransaction.mutateAsync({
@@ -113,24 +122,25 @@ export default function ComprasAgrupadas() {
       </Card>
 
       <div className="space-y-4">
-        {Object.entries(comprasPorCartao).map(([cartao, comprasCartao]) => {
+        {Object.entries(comprasPorCartao).map(([cartaoId, comprasCartao]) => {
           const totalCartao = comprasCartao.reduce((sum, c) => sum + Number(c.valor), 0);
           const todasPagas = comprasCartao.every((c) => c.status === "Pago");
+          const nomeCartao = cartaoId === "sem-cartao" ? "Sem cartão" : (cartoesMap[cartaoId] || cartaoId);
 
           return (
-            <Card key={cartao} className={`shadow-lg ${todasPagas ? "bg-emerald-50 border-emerald-200" : "bg-orange-50 border-orange-200"}`}>
+            <Card key={cartaoId} className={`shadow-lg ${todasPagas ? "bg-emerald-50 border-emerald-200" : "bg-orange-50 border-orange-200"}`}>
               <CardHeader>
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
                     <CreditCard className="h-6 w-6" />
                     <div>
-                      <CardTitle>{cartao}</CardTitle>
+                      <CardTitle>{nomeCartao}</CardTitle>
                       <p className="text-2xl font-bold mt-1">{formatCurrency(totalCartao)}</p>
                     </div>
                   </div>
                   <Button
                     variant={todasPagas ? "outline" : "default"}
-                    onClick={() => handleMarcarCartaoPago(cartao, !todasPagas)}
+                    onClick={() => handleMarcarCartaoPago(cartaoId, !todasPagas)}
                   >
                     {todasPagas ? "Reverter Pagamento" : "Marcar como Pago"}
                   </Button>

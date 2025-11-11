@@ -242,7 +242,7 @@ export function TransactionDialog({
                 </SelectTrigger>
                 <SelectContent>
                   {cartoes.map((cartao) => (
-                    <SelectItem key={cartao.id} value={cartao.nome}>
+                    <SelectItem key={cartao.id} value={cartao.id}>
                       {cartao.nome}
                     </SelectItem>
                   ))}

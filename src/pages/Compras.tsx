@@ -1,6 +1,7 @@
 import { useState, useMemo } from "react";
 import { MonthNavigator } from "@/components/MonthNavigator";
 import { useTransactions } from "@/hooks/useTransactions";
+import { useCartoes } from "@/hooks/useCartoes";
 import { formatCurrency, formatDate } from "@/lib/formatters";
 import { Button } from "@/components/ui/button";
 import { Plus, Pencil, Trash2 } from "lucide-react";
@@ -11,10 +12,12 @@ import { TransactionDialog } from "@/components/TransactionDialog";
 import { FilterBar } from "@/components/FilterBar";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { toast } from "sonner";
+import { useMonth } from "@/contexts/MonthContext";
 
 export default function Compras() {
-  const [currentDate, setCurrentDate] = useState(new Date());
+  const { currentDate, setCurrentDate } = useMonth();
   const { transactions, isLoading, addTransaction, updateTransaction, deleteTransaction } = useTransactions(currentDate);
+  const { cartoes } = useCartoes();
   
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingTransaction, setEditingTransaction] = useState<any>(null);
@@ -26,6 +29,13 @@ export default function Compras() {
   const [cartaoFilter, setCartaoFilter] = useState("Todos");
   const [categoriaFilter, setCategoriaFilter] = useState("Todas");
   const [statusFilter, setStatusFilter] = useState("Todos");
+
+  const cartoesMap = useMemo(() => {
+    return cartoes.reduce((acc, cartao) => {
+      acc[cartao.id] = cartao.nome;
+      return acc;
+    }, {} as Record<string, string>);
+  }, [cartoes]);
 
   const compras = useMemo(() => {
     return transactions
@@ -153,7 +163,7 @@ export default function Compras() {
                     <TableCell className="font-medium">{compra.descricao}</TableCell>
                     <TableCell>{compra.categoria}</TableCell>
                     <TableCell>{compra.responsavel}</TableCell>
-                    <TableCell>{compra.cartao || "-"}</TableCell>
+                    <TableCell>{compra.cartao ? cartoesMap[compra.cartao] || compra.cartao : "-"}</TableCell>
                     <TableCell>{compra.parcelas ? `${compra.parcelas}x` : "-"}</TableCell>
                     <TableCell>
                       <Badge variant={compra.status === "Pago" ? "default" : "secondary"}>
