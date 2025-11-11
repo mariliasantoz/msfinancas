@@ -5,7 +5,7 @@ import { useCartoes } from "@/hooks/useCartoes";
 import { formatCurrency, formatDate } from "@/lib/formatters";
 import { useMonth } from "@/contexts/MonthContext";
 import { Button } from "@/components/ui/button";
-import { Plus, Pencil, Trash2, CreditCard } from "lucide-react";
+import { Plus, Pencil, Trash2, CreditCard, ChevronDown, ChevronUp } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { TransactionDialog } from "@/components/TransactionDialog";
@@ -25,6 +25,7 @@ export default function ComprasAgrupadas() {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [deletingTransaction, setDeletingTransaction] = useState<any>(null);
+  const [expandedCards, setExpandedCards] = useState<Record<string, boolean>>({});
 
   const compras = transactions.filter((t) => t.tipo === "compra");
 
@@ -138,6 +139,9 @@ export default function ComprasAgrupadas() {
           const totalCartao = comprasCartao.reduce((sum, c) => sum + Number(c.valor), 0);
           const todasPagas = comprasCartao.every((c) => c.status === "Pago");
           const nomeCartao = cartaoId === "sem-cartao" ? "Sem cartão" : (cartoesMap[cartaoId] || cartaoId);
+          const isExpanded = expandedCards[cartaoId] || false;
+          const comprasVisiveis = isExpanded ? comprasCartao : comprasCartao.slice(0, 5);
+          const totalComprasCartao = comprasCartao.length;
 
           return (
             <Card key={cartaoId} className={`shadow-lg ${todasPagas ? "bg-emerald-50 border-emerald-200" : "bg-orange-50 border-orange-200"}`}>
@@ -148,6 +152,9 @@ export default function ComprasAgrupadas() {
                     <div>
                       <CardTitle>{nomeCartao}</CardTitle>
                       <p className="text-2xl font-bold mt-1">{formatCurrency(totalCartao)}</p>
+                      <p className="text-sm text-muted-foreground mt-1">
+                        {totalComprasCartao} {totalComprasCartao === 1 ? "compra" : "compras"}
+                      </p>
                     </div>
                   </div>
                   <Button
@@ -159,7 +166,8 @@ export default function ComprasAgrupadas() {
                 </div>
               </CardHeader>
               <CardContent>
-                <Table>
+                <div className="space-y-4">
+                  <Table>
                   <TableHeader>
                     <TableRow>
                       <TableHead>Data</TableHead>
@@ -172,7 +180,7 @@ export default function ComprasAgrupadas() {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {comprasCartao.map((compra) => (
+                    {comprasVisiveis.map((compra) => (
                       <TableRow key={compra.id}>
                         <TableCell>{formatDate(compra.data)}</TableCell>
                         <TableCell className="font-medium">{compra.descricao}</TableCell>
@@ -194,6 +202,31 @@ export default function ComprasAgrupadas() {
                     ))}
                   </TableBody>
                 </Table>
+                
+                {totalComprasCartao > 5 && (
+                  <div className="flex items-center justify-between pt-4 border-t">
+                    <p className="text-sm text-muted-foreground">
+                      Mostrando {comprasVisiveis.length} de {totalComprasCartao} compras
+                    </p>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setExpandedCards(prev => ({ ...prev, [cartaoId]: !isExpanded }))}
+                      className="gap-2"
+                    >
+                      {isExpanded ? (
+                        <>
+                          Mostrar menos <ChevronUp className="h-4 w-4" />
+                        </>
+                      ) : (
+                        <>
+                          Ver todas <ChevronDown className="h-4 w-4" />
+                        </>
+                      )}
+                    </Button>
+                  </div>
+                )}
+                </div>
               </CardContent>
             </Card>
           );
