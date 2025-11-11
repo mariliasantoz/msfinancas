@@ -23,6 +23,7 @@ export default function Compras() {
   const [editingTransaction, setEditingTransaction] = useState<any>(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [deletingTransaction, setDeletingTransaction] = useState<any>(null);
 
   const [searchValue, setSearchValue] = useState("");
   const [responsavelFilter, setResponsavelFilter] = useState("Todos");
@@ -74,8 +75,9 @@ export default function Compras() {
     setDialogOpen(true);
   };
 
-  const handleDeleteClick = (id: string) => {
-    setDeletingId(id);
+  const handleDeleteClick = (transaction: any) => {
+    setDeletingId(transaction.id);
+    setDeletingTransaction(transaction);
     setDeleteDialogOpen(true);
   };
 
@@ -185,7 +187,7 @@ export default function Compras() {
                         <Button
                           size="icon"
                           variant="ghost"
-                          onClick={() => handleDeleteClick(compra.id)}
+                          onClick={() => handleDeleteClick(compra)}
                         >
                           <Trash2 className="h-4 w-4 text-destructive" />
                         </Button>
@@ -217,7 +219,10 @@ export default function Compras() {
           <AlertDialogHeader>
             <AlertDialogTitle>Confirmar exclusão</AlertDialogTitle>
             <AlertDialogDescription>
-              Tem certeza que deseja excluir esta compra? Esta ação não pode ser desfeita.
+              {deletingTransaction?.grupo_parcelas 
+                ? `Tem certeza que deseja excluir TODAS AS PARCELAS desta compra? Esta ação não pode ser desfeita e afetará todos os meses onde esta compra aparece.`
+                : "Tem certeza que deseja excluir esta compra? Esta ação não pode ser desfeita."
+              }
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>

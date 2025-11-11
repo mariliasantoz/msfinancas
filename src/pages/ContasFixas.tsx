@@ -20,6 +20,7 @@ export default function ContasFixas() {
   const [editingTransaction, setEditingTransaction] = useState<any>(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [deletingTransaction, setDeletingTransaction] = useState<any>(null);
 
   const [searchValue, setSearchValue] = useState("");
   const [responsavelFilter, setResponsavelFilter] = useState("Todos");
@@ -64,8 +65,9 @@ export default function ContasFixas() {
     setDialogOpen(true);
   };
 
-  const handleDeleteClick = (id: string) => {
-    setDeletingId(id);
+  const handleDeleteClick = (transaction: any) => {
+    setDeletingId(transaction.id);
+    setDeletingTransaction(transaction);
     setDeleteDialogOpen(true);
   };
 
@@ -172,7 +174,7 @@ export default function ContasFixas() {
                         <Button
                           size="icon"
                           variant="ghost"
-                          onClick={() => handleDeleteClick(conta.id)}
+                          onClick={() => handleDeleteClick(conta)}
                         >
                           <Trash2 className="h-4 w-4 text-destructive" />
                         </Button>
@@ -204,7 +206,10 @@ export default function ContasFixas() {
           <AlertDialogHeader>
             <AlertDialogTitle>Confirmar exclusão</AlertDialogTitle>
             <AlertDialogDescription>
-              Tem certeza que deseja excluir esta conta? Esta ação não pode ser desfeita.
+              {deletingTransaction?.grupo_parcelas 
+                ? `Tem certeza que deseja excluir TODAS AS PARCELAS desta conta? Esta ação não pode ser desfeita e afetará todos os meses onde esta conta aparece.`
+                : "Tem certeza que deseja excluir esta conta? Esta ação não pode ser desfeita."
+              }
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>

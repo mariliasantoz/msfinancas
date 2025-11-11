@@ -67,6 +67,7 @@ export type Database = {
           data: string
           descricao: string
           forma_pagamento: string | null
+          grupo_parcelas: string | null
           id: string
           mes_referencia: string
           parcelas: number | null
@@ -83,6 +84,7 @@ export type Database = {
           data?: string
           descricao: string
           forma_pagamento?: string | null
+          grupo_parcelas?: string | null
           id?: string
           mes_referencia: string
           parcelas?: number | null
@@ -99,6 +101,7 @@ export type Database = {
           data?: string
           descricao?: string
           forma_pagamento?: string | null
+          grupo_parcelas?: string | null
           id?: string
           mes_referencia?: string
           parcelas?: number | null

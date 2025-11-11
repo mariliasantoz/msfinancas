@@ -21,6 +21,7 @@ export default function ComprasAgrupadas() {
   const [editingTransaction, setEditingTransaction] = useState<any>(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [deletingTransaction, setDeletingTransaction] = useState<any>(null);
 
   const compras = transactions.filter((t) => t.tipo === "compra");
 
@@ -77,8 +78,9 @@ export default function ComprasAgrupadas() {
     setDialogOpen(true);
   };
 
-  const handleDeleteClick = (id: string) => {
-    setDeletingId(id);
+  const handleDeleteClick = (transaction: any) => {
+    setDeletingId(transaction.id);
+    setDeletingTransaction(transaction);
     setDeleteDialogOpen(true);
   };
 
@@ -173,7 +175,7 @@ export default function ComprasAgrupadas() {
                             <Button size="icon" variant="ghost" onClick={() => handleEdit(compra)}>
                               <Pencil className="h-4 w-4" />
                             </Button>
-                            <Button size="icon" variant="ghost" onClick={() => handleDeleteClick(compra.id)}>
+                            <Button size="icon" variant="ghost" onClick={() => handleDeleteClick(compra)}>
                               <Trash2 className="h-4 w-4 text-destructive" />
                             </Button>
                           </div>
@@ -202,7 +204,10 @@ export default function ComprasAgrupadas() {
           <AlertDialogHeader>
             <AlertDialogTitle>Confirmar exclusão</AlertDialogTitle>
             <AlertDialogDescription>
-              Tem certeza que deseja excluir esta compra?
+              {deletingTransaction?.grupo_parcelas 
+                ? `Tem certeza que deseja excluir TODAS AS PARCELAS desta compra? Esta ação não pode ser desfeita e afetará todos os meses onde esta compra aparece.`
+                : "Tem certeza que deseja excluir esta compra? Esta ação não pode ser desfeita."
+              }
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
