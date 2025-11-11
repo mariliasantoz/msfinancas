@@ -1,9 +1,10 @@
-import { useState, useMemo } from "react";
+import { useMemo } from "react";
 import { MonthNavigator } from "@/components/MonthNavigator";
 import { StatsCard } from "@/components/StatsCard";
 import { useTransactions } from "@/hooks/useTransactions";
 import { useConfig } from "@/hooks/useConfig";
-import { formatCurrency, getMonthReference, getNextMonth } from "@/lib/formatters";
+import { formatCurrency, getMonthReference } from "@/lib/formatters";
+import { useMonth } from "@/contexts/MonthContext";
 import { TrendingUp, TrendingDown, Wallet, Target, AlertCircle, Copy } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { PieChart, Pie, Cell, ResponsiveContainer, Legend, BarChart, Bar, XAxis, YAxis, Tooltip } from "recharts";
@@ -13,7 +14,7 @@ import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 
 export default function Dashboard() {
-  const [currentDate, setCurrentDate] = useState(getNextMonth());
+  const { currentDate, setCurrentDate } = useMonth();
   const { transactions, isLoading, addTransaction } = useTransactions(currentDate);
   const { config } = useConfig();
 
