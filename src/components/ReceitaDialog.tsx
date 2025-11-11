@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Transaction } from "@/hooks/useTransactions";
-import { formatCurrency } from "@/lib/formatters";
+import { getMonthReference } from "@/lib/formatters";
 
 interface ReceitaDialogProps {
   open: boolean;
@@ -60,7 +60,7 @@ export function ReceitaDialog({ open, onOpenChange, transaction, onSave, current
     }
 
     const mes = new Date(formData.data);
-    const mesReferencia = mes.toLocaleDateString("en-US", { month: "long", year: "numeric" });
+    const mesReferencia = getMonthReference(mes);
 
     const transactionData: Partial<Transaction> = {
       data: formData.data,
