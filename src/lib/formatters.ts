@@ -26,3 +26,9 @@ export function getNextMonth(): Date {
   nextMonth.setMonth(nextMonth.getMonth() + 1);
   return nextMonth;
 }
+
+export function getMonthReferenceFromDate(date: string, monthsToAdd: number = 0): string {
+  const dateObj = new Date(date);
+  dateObj.setMonth(dateObj.getMonth() + monthsToAdd);
+  return getMonthReference(dateObj);
+}

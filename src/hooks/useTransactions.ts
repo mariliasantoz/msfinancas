@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { getMonthReference } from "@/lib/formatters";
+import { getMonthReference, getMonthReferenceFromDate } from "@/lib/formatters";
 
 export interface Transaction {
   id: string;
@@ -37,6 +37,34 @@ export function useTransactions(currentDate: Date) {
 
   const addTransaction = useMutation({
     mutationFn: async (transaction: Omit<Transaction, "id">) => {
+      // Se for parcelado, criar múltiplas transações
+      if (transaction.forma_pagamento === "Parcelado" && transaction.parcelas && transaction.parcelas > 1) {
+        const valorParcela = transaction.valor / transaction.parcelas;
+        const transacoes = [];
+
+        for (let i = 1; i <= transaction.parcelas; i++) {
+          // Começar a contar a partir do mês seguinte à data da transação
+          const mesRef = getMonthReferenceFromDate(transaction.data, i);
+          
+          transacoes.push({
+            ...transaction,
+            descricao: `${transaction.descricao} - Parcela ${i}/${transaction.parcelas}`,
+            valor: valorParcela,
+            mes_referencia: mesRef,
+            parcelas: i, // Armazena o número da parcela atual
+          });
+        }
+
+        const { data, error } = await supabase
+          .from("transacoes")
+          .insert(transacoes)
+          .select();
+
+        if (error) throw error;
+        return data;
+      }
+
+      // Se não for parcelado, inserir normalmente
       const { data, error } = await supabase
         .from("transacoes")
         .insert([transaction])
@@ -47,7 +75,7 @@ export function useTransactions(currentDate: Date) {
       return data;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["transactions", mesReferencia] });
+      queryClient.invalidateQueries({ queryKey: ["transactions"] });
     },
   });
 
