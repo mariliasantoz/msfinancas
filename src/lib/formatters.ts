@@ -20,3 +20,9 @@ export function getMonthReference(date: Date): string {
 export function capitalizeFirst(text: string): string {
   return text.charAt(0).toUpperCase() + text.slice(1);
 }
+
+export function getNextMonth(): Date {
+  const nextMonth = new Date();
+  nextMonth.setMonth(nextMonth.getMonth() + 1);
+  return nextMonth;
+}

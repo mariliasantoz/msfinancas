@@ -3,13 +3,13 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { FileDown } from "lucide-react";
 import { useTransactions } from "@/hooks/useTransactions";
-import { formatCurrency } from "@/lib/formatters";
+import { formatCurrency, getNextMonth } from "@/lib/formatters";
 import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip, BarChart, Bar, XAxis, YAxis, LineChart, Line } from "recharts";
 import { MonthNavigator } from "@/components/MonthNavigator";
 import { toast } from "sonner";
 
 export default function Relatorios() {
-  const [currentDate, setCurrentDate] = useState(new Date());
+  const [currentDate, setCurrentDate] = useState(getNextMonth());
   const { transactions } = useTransactions(currentDate);
 
   const despesasPorCategoria = useMemo(() => {

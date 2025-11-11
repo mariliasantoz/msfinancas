@@ -1,7 +1,7 @@
 import { useState, useMemo } from "react";
 import { MonthNavigator } from "@/components/MonthNavigator";
 import { useTransactions } from "@/hooks/useTransactions";
-import { formatCurrency, formatDate } from "@/lib/formatters";
+import { formatCurrency, formatDate, getNextMonth } from "@/lib/formatters";
 import { Button } from "@/components/ui/button";
 import { Plus, Pencil, Trash2 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -13,7 +13,7 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { toast } from "sonner";
 
 export default function Receitas() {
-  const [currentDate, setCurrentDate] = useState(new Date());
+  const [currentDate, setCurrentDate] = useState(getNextMonth());
   const { transactions, isLoading, addTransaction, updateTransaction, deleteTransaction } = useTransactions(currentDate);
   
   const [dialogOpen, setDialogOpen] = useState(false);
