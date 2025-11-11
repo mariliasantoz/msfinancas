@@ -7,8 +7,8 @@ import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/AppSidebar";
 import Dashboard from "./pages/Dashboard";
 import Receitas from "./pages/Receitas";
-import ContasFixas from "./pages/ContasFixas";
-import Compras from "./pages/Compras";
+import Contas from "./pages/Contas";
+import Compras from "./pages/ComprasAgrupadas";
 import Relatorios from "./pages/Relatorios";
 import Configuracoes from "./pages/Configuracoes";
 import NotFound from "./pages/NotFound";
@@ -34,7 +34,7 @@ const App = () => (
               <Routes>
                 <Route path="/" element={<Dashboard />} />
                 <Route path="/receitas" element={<Receitas />} />
-                <Route path="/contas-fixas" element={<ContasFixas />} />
+                <Route path="/contas-fixas" element={<Contas />} />
                 <Route path="/compras" element={<Compras />} />
                 <Route path="/relatorios" element={<Relatorios />} />
                 <Route path="/configuracoes" element={<Configuracoes />} />

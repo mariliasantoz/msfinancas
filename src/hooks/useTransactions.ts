@@ -13,7 +13,7 @@ export interface Transaction {
   forma_pagamento?: string;
   parcelas?: number;
   cartao?: string;
-  status: "Pago" | "A Pagar";
+  status: "Pago" | "A Pagar" | "Recebido" | "A Receber";
   mes_referencia: string;
 }
 

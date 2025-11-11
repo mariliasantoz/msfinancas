@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Transaction } from "@/hooks/useTransactions";
+import { useCartoes } from "@/hooks/useCartoes";
 import { getMonthReference } from "@/lib/formatters";
 
 interface TransactionDialogProps {
@@ -28,7 +29,6 @@ const categorias = [
 ];
 
 const responsaveis = ["Liana", "Stefany", "Marília", "Nosso ❤️"];
-const cartoes = ["Nubank", "Santander", "Mercado Pago", "Amazon"];
 const formasPagamento = ["PIX", "Cartão", "Parcelado", "Dinheiro", "Outros"];
 
 export function TransactionDialog({
@@ -39,6 +39,7 @@ export function TransactionDialog({
   onSave,
   currentDate,
 }: TransactionDialogProps) {
+  const { cartoes } = useCartoes();
   const [formData, setFormData] = useState({
     data: "",
     descricao: "",
@@ -48,7 +49,7 @@ export function TransactionDialog({
     forma_pagamento: "",
     parcelas: "1",
     cartao: "",
-    status: "Pago" as "Pago" | "A Pagar",
+    status: "Pago" as Transaction["status"],
   });
 
   useEffect(() => {
@@ -91,7 +92,7 @@ export function TransactionDialog({
       forma_pagamento: formData.forma_pagamento,
       parcelas: parseInt(formData.parcelas),
       cartao: formData.cartao || undefined,
-      status: formData.status,
+      status: tipo === "compra" ? "A Pagar" : (formData.status as any),
       mes_referencia: getMonthReference(currentDate),
     });
     onOpenChange(false);
@@ -203,18 +204,20 @@ export function TransactionDialog({
               </Select>
             </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="status">Status</Label>
-              <Select value={formData.status} onValueChange={(value) => setFormData({ ...formData, status: value as any })}>
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="Pago">Pago</SelectItem>
-                  <SelectItem value="A Pagar">A Pagar</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
+            {tipo !== "compra" && (
+              <div className="space-y-2">
+                <Label htmlFor="status">Status</Label>
+                <Select value={formData.status} onValueChange={(value) => setFormData({ ...formData, status: value as any })}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="Pago">Pago</SelectItem>
+                    <SelectItem value="A Pagar">A Pagar</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
           </div>
 
           {isParcelado && (
@@ -239,8 +242,8 @@ export function TransactionDialog({
                 </SelectTrigger>
                 <SelectContent>
                   {cartoes.map((cartao) => (
-                    <SelectItem key={cartao} value={cartao}>
-                      {cartao}
+                    <SelectItem key={cartao.id} value={cartao.nome}>
+                      {cartao.nome}
                     </SelectItem>
                   ))}
                 </SelectContent>

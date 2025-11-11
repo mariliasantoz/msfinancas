@@ -1,41 +1,44 @@
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Search } from "lucide-react";
+import { useCartoes } from "@/hooks/useCartoes";
 
 interface FilterBarProps {
-  onSearchChange: (value: string) => void;
-  onResponsavelChange: (value: string) => void;
-  onCartaoChange: (value: string) => void;
-  onCategoriaChange: (value: string) => void;
-  onStatusChange: (value: string) => void;
   searchValue: string;
-  responsavelValue: string;
-  cartaoValue: string;
-  categoriaValue: string;
-  statusValue: string;
+  onSearchChange: (value: string) => void;
+  responsavelFilter: string;
+  onResponsavelChange: (value: string) => void;
+  cartaoFilter: string;
+  onCartaoChange: (value: string) => void;
+  categoriaFilter: string;
+  onCategoriaChange: (value: string) => void;
+  statusFilter: string;
+  onStatusChange: (value: string) => void;
   showCartao?: boolean;
   showStatus?: boolean;
 }
 
 const responsaveis = ["Todos", "Liana", "Stefany", "Marília", "Nosso ❤️"];
-const cartoes = ["Todos", "Nubank", "Santander", "Mercado Pago", "Amazon"];
 const categorias = ["Todas", "Alimentação", "Transporte", "Saúde", "Educação", "Lazer", "Moradia", "Vestuário", "Outros"];
-const status = ["Todos", "Pago", "A Pagar"];
+const statusOptions = ["Todos", "Pago", "A Pagar", "Recebido", "A Receber"];
 
 export function FilterBar({
-  onSearchChange,
-  onResponsavelChange,
-  onCartaoChange,
-  onCategoriaChange,
-  onStatusChange,
   searchValue,
-  responsavelValue,
-  cartaoValue,
-  categoriaValue,
-  statusValue,
+  onSearchChange,
+  responsavelFilter,
+  onResponsavelChange,
+  cartaoFilter,
+  onCartaoChange,
+  categoriaFilter,
+  onCategoriaChange,
+  statusFilter,
+  onStatusChange,
   showCartao = true,
   showStatus = true,
 }: FilterBarProps) {
+  const { cartoes } = useCartoes();
+  const cartoesOptions = ["Todos", ...cartoes.map(c => c.nome)];
+
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 mb-6">
       <div className="relative lg:col-span-2">
@@ -48,7 +51,7 @@ export function FilterBar({
         />
       </div>
 
-      <Select value={responsavelValue} onValueChange={onResponsavelChange}>
+      <Select value={responsavelFilter} onValueChange={onResponsavelChange}>
         <SelectTrigger>
           <SelectValue placeholder="Responsável" />
         </SelectTrigger>
@@ -61,7 +64,7 @@ export function FilterBar({
         </SelectContent>
       </Select>
 
-      <Select value={categoriaValue} onValueChange={onCategoriaChange}>
+      <Select value={categoriaFilter} onValueChange={onCategoriaChange}>
         <SelectTrigger>
           <SelectValue placeholder="Categoria" />
         </SelectTrigger>
@@ -75,12 +78,12 @@ export function FilterBar({
       </Select>
 
       {showCartao && (
-        <Select value={cartaoValue} onValueChange={onCartaoChange}>
+        <Select value={cartaoFilter} onValueChange={onCartaoChange}>
           <SelectTrigger>
             <SelectValue placeholder="Cartão" />
           </SelectTrigger>
           <SelectContent>
-            {cartoes.map((cartao) => (
+            {cartoesOptions.map((cartao) => (
               <SelectItem key={cartao} value={cartao}>
                 {cartao}
               </SelectItem>
@@ -90,12 +93,12 @@ export function FilterBar({
       )}
 
       {showStatus && (
-        <Select value={statusValue} onValueChange={onStatusChange}>
+        <Select value={statusFilter} onValueChange={onStatusChange}>
           <SelectTrigger>
             <SelectValue placeholder="Status" />
           </SelectTrigger>
           <SelectContent>
-            {status.map((st) => (
+            {statusOptions.map((st) => (
               <SelectItem key={st} value={st}>
                 {st}
               </SelectItem>

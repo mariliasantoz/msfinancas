@@ -120,10 +120,10 @@ export default function ContasFixas() {
         <CardContent>
           <FilterBar
             searchValue={searchValue}
-            responsavelValue={responsavelFilter}
-            cartaoValue={cartaoFilter}
-            categoriaValue={categoriaFilter}
-            statusValue={statusFilter}
+            responsavelFilter={responsavelFilter}
+            cartaoFilter={cartaoFilter}
+            categoriaFilter={categoriaFilter}
+            statusFilter={statusFilter}
             onSearchChange={setSearchValue}
             onResponsavelChange={setResponsavelFilter}
             onCartaoChange={setCartaoFilter}

@@ -6,7 +6,8 @@ import { Button } from "@/components/ui/button";
 import { Plus, Pencil, Trash2 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { TransactionDialog } from "@/components/TransactionDialog";
+import { Badge } from "@/components/ui/badge";
+import { ReceitaDialog } from "@/components/ReceitaDialog";
 import { FilterBar } from "@/components/FilterBar";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { toast } from "sonner";
@@ -119,10 +120,10 @@ export default function Receitas() {
         <CardContent>
           <FilterBar
             searchValue={searchValue}
-            responsavelValue={responsavelFilter}
-            cartaoValue={cartaoFilter}
-            categoriaValue={categoriaFilter}
-            statusValue={statusFilter}
+            responsavelFilter={responsavelFilter}
+            cartaoFilter={cartaoFilter}
+            categoriaFilter={categoriaFilter}
+            statusFilter={statusFilter}
             onSearchChange={setSearchValue}
             onResponsavelChange={setResponsavelFilter}
             onCartaoChange={setCartaoFilter}
@@ -137,9 +138,9 @@ export default function Receitas() {
                 <TableRow>
                   <TableHead>Data</TableHead>
                   <TableHead>Descrição</TableHead>
-                  <TableHead>Categoria</TableHead>
                   <TableHead>Responsável</TableHead>
                   <TableHead className="text-right">Valor</TableHead>
+                  <TableHead>Status</TableHead>
                   <TableHead className="text-right">Ações</TableHead>
                 </TableRow>
               </TableHeader>
@@ -148,10 +149,14 @@ export default function Receitas() {
                   <TableRow key={receita.id}>
                     <TableCell>{formatDate(receita.data)}</TableCell>
                     <TableCell className="font-medium">{receita.descricao}</TableCell>
-                    <TableCell>{receita.categoria}</TableCell>
                     <TableCell>{receita.responsavel}</TableCell>
                     <TableCell className="text-right font-bold text-liana-foreground">
                       {formatCurrency(Number(receita.valor))}
+                    </TableCell>
+                    <TableCell>
+                      <Badge variant={receita.status === "Recebido" ? "default" : "outline"}>
+                        {receita.status}
+                      </Badge>
                     </TableCell>
                     <TableCell className="text-right">
                       <div className="flex gap-2 justify-end">
@@ -183,11 +188,10 @@ export default function Receitas() {
         </CardContent>
       </Card>
 
-      <TransactionDialog
+      <ReceitaDialog
         open={dialogOpen}
         onOpenChange={setDialogOpen}
         transaction={editingTransaction}
-        tipo="receita"
         onSave={handleSave}
         currentDate={currentDate}
       />
