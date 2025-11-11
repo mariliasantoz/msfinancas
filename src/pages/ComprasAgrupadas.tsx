@@ -11,11 +11,14 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { TransactionDialog } from "@/components/TransactionDialog";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
+import { useQueryClient } from "@tanstack/react-query";
 
 export default function ComprasAgrupadas() {
   const { currentDate, setCurrentDate } = useMonth();
   const { transactions, isLoading, addTransaction, updateTransaction, deleteTransaction } = useTransactions(currentDate);
   const { cartoes } = useCartoes();
+  const queryClient = useQueryClient();
   
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingTransaction, setEditingTransaction] = useState<any>(null);
@@ -47,12 +50,19 @@ export default function ComprasAgrupadas() {
   const handleMarcarCartaoPago = async (cartaoId: string, isPago: boolean) => {
     const comprasCartao = comprasPorCartao[cartaoId];
     try {
-      for (const compra of comprasCartao) {
-        await updateTransaction.mutateAsync({
-          id: compra.id,
-          status: isPago ? "Pago" : "A Pagar",
-        });
-      }
+      // Atualizar diretamente apenas as transações do mês atual, sem propagar para outras parcelas
+      const idsParaAtualizar = comprasCartao.map(c => c.id);
+      
+      const { error } = await supabase
+        .from("transacoes")
+        .update({ status: isPago ? "Pago" : "A Pagar" })
+        .in("id", idsParaAtualizar);
+
+      if (error) throw error;
+
+      // Invalidar queries para atualizar a UI
+      queryClient.invalidateQueries({ queryKey: ["transactions"] });
+      
       toast.success(`Cartão ${isPago ? "marcado como pago" : "pagamento revertido"}!`);
     } catch (error) {
       toast.error("Erro ao atualizar status do cartão");
