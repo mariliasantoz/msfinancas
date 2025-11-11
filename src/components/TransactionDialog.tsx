@@ -156,7 +156,7 @@ export function TransactionDialog({
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="categoria">Categoria</Label>
-              <Select value={formData.categoria} onValueChange={(value) => setFormData({ ...formData, categoria: value })}>
+              <Select value={formData.categoria} onValueChange={(value) => setFormData({ ...formData, categoria: value })} required>
                 <SelectTrigger>
                   <SelectValue placeholder="Selecione" />
                 </SelectTrigger>
@@ -168,11 +168,12 @@ export function TransactionDialog({
                   ))}
                 </SelectContent>
               </Select>
+              <input type="text" value={formData.categoria} required className="sr-only" tabIndex={-1} aria-hidden="true" />
             </div>
 
             <div className="space-y-2">
               <Label htmlFor="responsavel">Responsável</Label>
-              <Select value={formData.responsavel} onValueChange={(value) => setFormData({ ...formData, responsavel: value })}>
+              <Select value={formData.responsavel} onValueChange={(value) => setFormData({ ...formData, responsavel: value })} required>
                 <SelectTrigger>
                   <SelectValue placeholder="Selecione" />
                 </SelectTrigger>
@@ -184,6 +185,7 @@ export function TransactionDialog({
                   ))}
                 </SelectContent>
               </Select>
+              <input type="text" value={formData.responsavel} required className="sr-only" tabIndex={-1} aria-hidden="true" />
             </div>
           </div>
 
