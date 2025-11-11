@@ -35,12 +35,10 @@ export default function Receitas() {
           t.descricao.toLowerCase().includes(searchValue.toLowerCase()) ||
           t.valor.toString().includes(searchValue);
         const matchesResponsavel = responsavelFilter === "Todos" || t.responsavel === responsavelFilter;
-        const matchesCartao = cartaoFilter === "Todos" || t.cartao === cartaoFilter;
-        const matchesCategoria = categoriaFilter === "Todas" || t.categoria === categoriaFilter;
         const matchesStatus = statusFilter === "Todos" || t.status === statusFilter;
-        return matchesSearch && matchesResponsavel && matchesCartao && matchesCategoria && matchesStatus;
+        return matchesSearch && matchesResponsavel && matchesStatus;
       });
-  }, [transactions, searchValue, responsavelFilter, cartaoFilter, categoriaFilter, statusFilter]);
+  }, [transactions, searchValue, responsavelFilter, statusFilter]);
 
   const totalReceitas = receitas.reduce((sum, r) => sum + Number(r.valor), 0);
 
@@ -130,6 +128,7 @@ export default function Receitas() {
             onCategoriaChange={setCategoriaFilter}
             onStatusChange={setStatusFilter}
             showCartao={false}
+            showCategoria={false}
           />
 
           {receitas.length > 0 ? (

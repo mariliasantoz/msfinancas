@@ -15,6 +15,7 @@ interface FilterBarProps {
   statusFilter: string;
   onStatusChange: (value: string) => void;
   showCartao?: boolean;
+  showCategoria?: boolean;
   showStatus?: boolean;
 }
 
@@ -34,6 +35,7 @@ export function FilterBar({
   statusFilter,
   onStatusChange,
   showCartao = true,
+  showCategoria = true,
   showStatus = true,
 }: FilterBarProps) {
   const { cartoes } = useCartoes();
@@ -64,18 +66,20 @@ export function FilterBar({
         </SelectContent>
       </Select>
 
-      <Select value={categoriaFilter} onValueChange={onCategoriaChange}>
-        <SelectTrigger>
-          <SelectValue placeholder="Categoria" />
-        </SelectTrigger>
-        <SelectContent>
-          {categorias.map((cat) => (
-            <SelectItem key={cat} value={cat}>
-              {cat}
-            </SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
+      {showCategoria && (
+        <Select value={categoriaFilter} onValueChange={onCategoriaChange}>
+          <SelectTrigger>
+            <SelectValue placeholder="Categoria" />
+          </SelectTrigger>
+          <SelectContent>
+            {categorias.map((cat) => (
+              <SelectItem key={cat} value={cat}>
+                {cat}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      )}
 
       {showCartao && (
         <Select value={cartaoFilter} onValueChange={onCartaoChange}>
