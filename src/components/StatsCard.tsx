@@ -1,6 +1,7 @@
 import { LucideIcon } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
+import { useView } from "@/contexts/ViewContext";
 
 interface StatsCardProps {
   title: string;
@@ -11,6 +12,9 @@ interface StatsCardProps {
 }
 
 export function StatsCard({ title, value, icon: Icon, variant = "default", subtitle }: StatsCardProps) {
+  const { showValues } = useView();
+  const displayValue = showValues ? value : "R$ •••";
+  
   const variantClasses = {
     default: "bg-card border-border",
     liana: "bg-liana/10 border-liana/20",
@@ -33,7 +37,7 @@ export function StatsCard({ title, value, icon: Icon, variant = "default", subti
         <div className="flex items-start justify-between">
           <div className="space-y-2">
             <p className="text-sm font-medium text-muted-foreground">{title}</p>
-            <p className="text-3xl font-bold">{value}</p>
+            <p className="text-3xl font-bold">{displayValue}</p>
             {subtitle && <p className="text-sm text-muted-foreground">{subtitle}</p>}
           </div>
           <div className={cn("p-3 rounded-xl bg-background/50", iconClasses[variant])}>

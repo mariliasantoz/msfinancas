@@ -1,4 +1,6 @@
-import { Home, TrendingUp, CreditCard, ShoppingCart, BarChart3, Settings } from "lucide-react";
+import { Home, TrendingUp, CreditCard, ShoppingCart, BarChart3, Settings, Eye, EyeOff } from "lucide-react";
+import { useView } from "@/contexts/ViewContext";
+import { Button } from "@/components/ui/button";
 import { NavLink } from "@/components/NavLink";
 import {
   Sidebar,
@@ -25,6 +27,7 @@ const menuItems = [
 export function AppSidebar() {
   const { state } = useSidebar();
   const isCollapsed = state === "collapsed";
+  const { showValues, toggleShowValues } = useView();
 
   return (
     <Sidebar collapsible="icon" className="border-r border-border">
@@ -59,6 +62,23 @@ export function AppSidebar() {
                 </SidebarMenuItem>
               ))}
             </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+
+        <SidebarGroup className="mt-auto">
+          <SidebarGroupContent>
+            <div className="px-4 py-2">
+              <Button
+                variant="outline"
+                size={isCollapsed ? "icon" : "default"}
+                onClick={toggleShowValues}
+                className="w-full"
+                title={showValues ? "Ocultar valores" : "Mostrar valores"}
+              >
+                {showValues ? <Eye className="h-4 w-4" /> : <EyeOff className="h-4 w-4" />}
+                {!isCollapsed && <span className="ml-2">{showValues ? "Ocultar Valores" : "Mostrar Valores"}</span>}
+              </Button>
+            </div>
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>

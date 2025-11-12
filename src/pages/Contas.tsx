@@ -3,6 +3,7 @@ import { MonthNavigator } from "@/components/MonthNavigator";
 import { useTransactions } from "@/hooks/useTransactions";
 import { formatCurrency, formatDate } from "@/lib/formatters";
 import { useMonth } from "@/contexts/MonthContext";
+import { useView } from "@/contexts/ViewContext";
 import { Button } from "@/components/ui/button";
 import { Plus, Pencil, Trash2 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -17,6 +18,7 @@ import { toast } from "sonner";
 export default function Contas() {
   const { currentDate, setCurrentDate } = useMonth();
   const { transactions, isLoading, addTransaction, updateTransaction, deleteTransaction } = useTransactions(currentDate);
+  const { showValues } = useView();
   
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingTransaction, setEditingTransaction] = useState<any>(null);
@@ -150,7 +152,7 @@ export default function Contas() {
                   </Badge>
                 </TableCell>
                 <TableCell className="text-right font-bold">
-                  {formatCurrency(Number(conta.valor))}
+                  {formatCurrency(Number(conta.valor), showValues)}
                 </TableCell>
                 <TableCell className="text-right">
                   <div className="flex gap-2 justify-end">
@@ -193,7 +195,7 @@ export default function Contas() {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm font-medium text-muted-foreground">Total Contas Fixas</p>
-                  <p className="text-4xl font-bold text-marilia-foreground">{formatCurrency(totalFixas)}</p>
+                  <p className="text-4xl font-bold text-marilia-foreground">{formatCurrency(totalFixas, showValues)}</p>
                 </div>
                 <Button size="lg" className="gap-2" onClick={() => handleAddNew("conta")}>
                   <Plus className="h-5 w-5" />
@@ -219,7 +221,7 @@ export default function Contas() {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm font-medium text-muted-foreground">Total Contas Variáveis</p>
-                  <p className="text-4xl font-bold text-stefany-foreground">{formatCurrency(totalVariaveis)}</p>
+                  <p className="text-4xl font-bold text-stefany-foreground">{formatCurrency(totalVariaveis, showValues)}</p>
                 </div>
                 <Button size="lg" className="gap-2" onClick={() => handleAddNew("despesa")}>
                   <Plus className="h-5 w-5" />

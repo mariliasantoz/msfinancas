@@ -1,4 +1,7 @@
-export function formatCurrency(value: number): string {
+export function formatCurrency(value: number, showValue: boolean = true): string {
+  if (!showValue) {
+    return "R$ •••";
+  }
   return new Intl.NumberFormat("pt-BR", {
     style: "currency",
     currency: "BRL",

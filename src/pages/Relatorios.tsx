@@ -5,6 +5,7 @@ import { FileDown } from "lucide-react";
 import { useTransactions } from "@/hooks/useTransactions";
 import { formatCurrency } from "@/lib/formatters";
 import { useMonth } from "@/contexts/MonthContext";
+import { useView } from "@/contexts/ViewContext";
 import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip, BarChart, Bar, XAxis, YAxis, LineChart, Line } from "recharts";
 import { MonthNavigator } from "@/components/MonthNavigator";
 import { toast } from "sonner";
@@ -12,6 +13,7 @@ import { toast } from "sonner";
 export default function Relatorios() {
   const { currentDate, setCurrentDate } = useMonth();
   const { transactions } = useTransactions(currentDate);
+  const { showValues } = useView();
 
   const despesasPorCategoria = useMemo(() => {
     const categorias = transactions
@@ -92,7 +94,7 @@ export default function Relatorios() {
                       <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                     ))}
                   </Pie>
-                  <Tooltip formatter={(value) => formatCurrency(Number(value))} />
+                  <Tooltip formatter={(value) => formatCurrency(Number(value), showValues)} />
                   <Legend />
                 </PieChart>
               </ResponsiveContainer>
@@ -111,7 +113,7 @@ export default function Relatorios() {
               <BarChart data={gastosMensais}>
                 <XAxis dataKey="mes" />
                 <YAxis />
-                <Tooltip formatter={(value) => formatCurrency(Number(value))} />
+                <Tooltip formatter={(value) => formatCurrency(Number(value), showValues)} />
                 <Bar dataKey="valor" fill="hsl(var(--stefany))" radius={[8, 8, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
@@ -128,7 +130,7 @@ export default function Relatorios() {
             <LineChart data={evolucaoSaldo}>
               <XAxis dataKey="mes" />
               <YAxis />
-              <Tooltip formatter={(value) => formatCurrency(Number(value))} />
+              <Tooltip formatter={(value) => formatCurrency(Number(value), showValues)} />
               <Line type="monotone" dataKey="saldo" stroke="hsl(var(--liana))" strokeWidth={2} dot={{ r: 4 }} />
             </LineChart>
           </ResponsiveContainer>

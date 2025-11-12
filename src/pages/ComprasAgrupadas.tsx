@@ -4,6 +4,7 @@ import { useTransactions } from "@/hooks/useTransactions";
 import { useCartoes } from "@/hooks/useCartoes";
 import { formatCurrency, formatDate } from "@/lib/formatters";
 import { useMonth } from "@/contexts/MonthContext";
+import { useView } from "@/contexts/ViewContext";
 import { Button } from "@/components/ui/button";
 import { Plus, Pencil, Trash2, CreditCard, ChevronDown, ChevronUp } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -19,6 +20,7 @@ export default function ComprasAgrupadas() {
   const { transactions, isLoading, addTransaction, updateTransaction, deleteTransaction } = useTransactions(currentDate);
   const { cartoes } = useCartoes();
   const queryClient = useQueryClient();
+  const { showValues } = useView();
   
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingTransaction, setEditingTransaction] = useState<any>(null);
@@ -124,7 +126,7 @@ export default function ComprasAgrupadas() {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm font-medium text-muted-foreground">Total de Compras</p>
-              <p className="text-4xl font-bold text-nosso-foreground">{formatCurrency(totalCompras)}</p>
+              <p className="text-4xl font-bold text-nosso-foreground">{formatCurrency(totalCompras, showValues)}</p>
             </div>
             <Button size="lg" className="gap-2" onClick={() => { setEditingTransaction(null); setDialogOpen(true); }}>
               <Plus className="h-5 w-5" />
@@ -151,7 +153,7 @@ export default function ComprasAgrupadas() {
                     <CreditCard className="h-6 w-6" />
                     <div>
                       <CardTitle>{nomeCartao}</CardTitle>
-                      <p className="text-2xl font-bold mt-1">{formatCurrency(totalCartao)}</p>
+                      <p className="text-2xl font-bold mt-1">{formatCurrency(totalCartao, showValues)}</p>
                       <p className="text-sm text-muted-foreground mt-1">
                         {totalComprasCartao} {totalComprasCartao === 1 ? "compra" : "compras"}
                       </p>
@@ -187,7 +189,7 @@ export default function ComprasAgrupadas() {
                         <TableCell>{compra.categoria}</TableCell>
                         <TableCell>{compra.responsavel}</TableCell>
                         <TableCell>{compra.parcelas}x</TableCell>
-                        <TableCell className="text-right font-bold">{formatCurrency(Number(compra.valor))}</TableCell>
+                        <TableCell className="text-right font-bold">{formatCurrency(Number(compra.valor), showValues)}</TableCell>
                         <TableCell className="text-right">
                           <div className="flex gap-2 justify-end">
                             <Button size="icon" variant="ghost" onClick={() => handleEdit(compra)}>

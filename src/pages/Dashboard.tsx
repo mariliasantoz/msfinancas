@@ -5,6 +5,7 @@ import { useTransactions } from "@/hooks/useTransactions";
 import { useConfig } from "@/hooks/useConfig";
 import { formatCurrency, getMonthReference } from "@/lib/formatters";
 import { useMonth } from "@/contexts/MonthContext";
+import { useView } from "@/contexts/ViewContext";
 import { TrendingUp, TrendingDown, Wallet, Target, AlertCircle, Copy } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { PieChart, Pie, Cell, ResponsiveContainer, Legend, BarChart, Bar, XAxis, YAxis, Tooltip } from "recharts";
@@ -17,6 +18,7 @@ export default function Dashboard() {
   const { currentDate, setCurrentDate } = useMonth();
   const { transactions, isLoading, addTransaction } = useTransactions(currentDate);
   const { config } = useConfig();
+  const { showValues } = useView();
 
   const handleDuplicarMesAnterior = async () => {
     const mesAnterior = new Date(currentDate);
@@ -133,25 +135,25 @@ export default function Dashboard() {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         <StatsCard
           title="Total de Receitas"
-          value={formatCurrency(stats.receitas)}
+          value={formatCurrency(stats.receitas, showValues)}
           icon={TrendingUp}
           variant="liana"
         />
         <StatsCard
           title="Total de Despesas"
-          value={formatCurrency(stats.despesas)}
+          value={formatCurrency(stats.despesas, showValues)}
           icon={TrendingDown}
           variant="stefany"
         />
         <StatsCard
           title="Saldo do Mês"
-          value={formatCurrency(stats.saldo)}
+          value={formatCurrency(stats.saldo, showValues)}
           icon={Wallet}
           variant={stats.saldo >= 0 ? "liana" : "stefany"}
         />
         <StatsCard
           title="Meta Mensal"
-          value={formatCurrency(stats.metaMensal)}
+          value={formatCurrency(stats.metaMensal, showValues)}
           icon={Target}
           variant="nosso"
           subtitle={`${stats.percentualMeta.toFixed(1)}% utilizado`}
@@ -173,7 +175,7 @@ export default function Dashboard() {
         <Alert className="border-liana bg-liana/5">
           <AlertCircle className="h-4 w-4 text-liana-foreground" />
           <AlertDescription className="text-liana-foreground">
-            ✅ Você gastou {stats.percentualMeta.toFixed(1)}% da meta de {formatCurrency(stats.metaMensal)}. Continue
+            ✅ Você gastou {stats.percentualMeta.toFixed(1)}% da meta de {formatCurrency(stats.metaMensal, showValues)}. Continue
             controlando bem! 👏
           </AlertDescription>
         </Alert>
@@ -202,7 +204,7 @@ export default function Dashboard() {
                       <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                     ))}
                   </Pie>
-                  <Tooltip formatter={(value) => formatCurrency(Number(value))} />
+                  <Tooltip formatter={(value) => formatCurrency(Number(value), showValues)} />
                   <Legend />
                 </PieChart>
               </ResponsiveContainer>
@@ -222,7 +224,7 @@ export default function Dashboard() {
                 <BarChart data={gastosPorResponsavel}>
                   <XAxis dataKey="name" />
                   <YAxis />
-                  <Tooltip formatter={(value) => formatCurrency(Number(value))} />
+                  <Tooltip formatter={(value) => formatCurrency(Number(value), showValues)} />
                   <Bar dataKey="value" fill="hsl(var(--primary))" radius={[8, 8, 0, 0]} />
                 </BarChart>
               </ResponsiveContainer>
@@ -249,7 +251,7 @@ export default function Dashboard() {
                   {maiorGasto.categoria} • {maiorGasto.responsavel}
                 </p>
               </div>
-              <p className="text-3xl font-bold text-nosso-foreground">{formatCurrency(Number(maiorGasto.valor))}</p>
+              <p className="text-3xl font-bold text-nosso-foreground">{formatCurrency(Number(maiorGasto.valor), showValues)}</p>
             </div>
           </CardContent>
         </Card>

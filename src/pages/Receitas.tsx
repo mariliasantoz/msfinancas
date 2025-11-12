@@ -3,6 +3,7 @@ import { MonthNavigator } from "@/components/MonthNavigator";
 import { useTransactions } from "@/hooks/useTransactions";
 import { formatCurrency, formatDate } from "@/lib/formatters";
 import { useMonth } from "@/contexts/MonthContext";
+import { useView } from "@/contexts/ViewContext";
 import { Button } from "@/components/ui/button";
 import { Plus, Pencil, Trash2 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -16,6 +17,7 @@ import { toast } from "sonner";
 export default function Receitas() {
   const { currentDate, setCurrentDate } = useMonth();
   const { transactions, isLoading, addTransaction, updateTransaction, deleteTransaction } = useTransactions(currentDate);
+  const { showValues } = useView();
   
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingTransaction, setEditingTransaction] = useState<any>(null);
@@ -102,7 +104,7 @@ export default function Receitas() {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm font-medium text-muted-foreground">Total de Receitas</p>
-              <p className="text-4xl font-bold text-liana-foreground">{formatCurrency(totalReceitas)}</p>
+              <p className="text-4xl font-bold text-liana-foreground">{formatCurrency(totalReceitas, showValues)}</p>
             </div>
             <Button size="lg" className="gap-2" onClick={handleAddNew}>
               <Plus className="h-5 w-5" />
@@ -151,7 +153,7 @@ export default function Receitas() {
                     <TableCell className="font-medium">{receita.descricao}</TableCell>
                     <TableCell>{receita.responsavel}</TableCell>
                     <TableCell className="text-right font-bold text-liana-foreground">
-                      {formatCurrency(Number(receita.valor))}
+                      {formatCurrency(Number(receita.valor), showValues)}
                     </TableCell>
                     <TableCell>
                       <Badge variant={receita.status === "Recebido" ? "default" : "outline"}>
