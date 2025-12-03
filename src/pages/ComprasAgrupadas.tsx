@@ -6,7 +6,8 @@ import { formatCurrency, formatDate } from "@/lib/formatters";
 import { useMonth } from "@/contexts/MonthContext";
 import { useView } from "@/contexts/ViewContext";
 import { Button } from "@/components/ui/button";
-import { Plus, Pencil, Trash2, CreditCard, ChevronDown, ChevronUp } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Plus, Pencil, Trash2, CreditCard, ChevronDown, ChevronUp, Search } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { TransactionDialog } from "@/components/TransactionDialog";
@@ -28,6 +29,7 @@ export default function ComprasAgrupadas() {
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [deletingTransaction, setDeletingTransaction] = useState<any>(null);
   const [expandedCards, setExpandedCards] = useState<Record<string, boolean>>({});
+  const [searchByCard, setSearchByCard] = useState<Record<string, string>>({});
 
   const compras = transactions.filter((t) => t.tipo === "compra");
 
@@ -142,8 +144,17 @@ export default function ComprasAgrupadas() {
           const todasPagas = comprasCartao.every((c) => c.status === "Pago");
           const nomeCartao = cartaoId === "sem-cartao" ? "Sem cartão" : (cartoesMap[cartaoId] || cartaoId);
           const isExpanded = expandedCards[cartaoId] || false;
-          const comprasVisiveis = isExpanded ? comprasCartao : comprasCartao.slice(0, 3);
           const totalComprasCartao = comprasCartao.length;
+
+          const searchTerm = searchByCard[cartaoId] || "";
+          const comprasFiltradas = comprasCartao.filter((c) => {
+            if (!searchTerm) return true;
+            const searchLower = searchTerm.toLowerCase();
+            return c.descricao.toLowerCase().includes(searchLower) || 
+                   c.valor.toString().includes(searchTerm);
+          });
+          const comprasVisiveis = isExpanded ? comprasFiltradas : comprasFiltradas.slice(0, 3);
+          const totalComprasFiltradas = comprasFiltradas.length;
 
           return (
             <Card key={cartaoId} className={`shadow-lg ${todasPagas ? "bg-emerald-50 border-emerald-200" : "bg-orange-50 border-orange-200"}`}>
@@ -169,6 +180,15 @@ export default function ComprasAgrupadas() {
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
+                  <div className="relative">
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                    <Input
+                      placeholder="Buscar por nome ou valor..."
+                      value={searchByCard[cartaoId] || ""}
+                      onChange={(e) => setSearchByCard(prev => ({ ...prev, [cartaoId]: e.target.value }))}
+                      className="pl-9"
+                    />
+                  </div>
                   <Table>
                   <TableHeader>
                     <TableRow>
@@ -205,10 +225,10 @@ export default function ComprasAgrupadas() {
                   </TableBody>
                 </Table>
                 
-                {totalComprasCartao > 3 && (
+                {totalComprasFiltradas > 3 && (
                   <div className="flex items-center justify-between pt-4 border-t">
                     <p className="text-sm text-muted-foreground">
-                      Mostrando {comprasVisiveis.length} de {totalComprasCartao} compras
+                      Mostrando {comprasVisiveis.length} de {totalComprasFiltradas} compras
                     </p>
                     <Button
                       variant="outline"

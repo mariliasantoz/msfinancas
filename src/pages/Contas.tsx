@@ -147,7 +147,19 @@ export default function Contas() {
                 <TableCell>{conta.categoria}</TableCell>
                 <TableCell>{conta.responsavel}</TableCell>
                 <TableCell>
-                  <Badge variant={conta.status === "Pago" ? "default" : "outline"}>
+                  <Badge 
+                    variant={conta.status === "Pago" ? "default" : "outline"}
+                    className="cursor-pointer hover:opacity-80"
+                    onClick={async () => {
+                      const novoStatus = conta.status === "Pago" ? "A Pagar" : "Pago";
+                      try {
+                        await updateTransaction.mutateAsync({ id: conta.id, status: novoStatus });
+                        toast.success(`Status alterado para ${novoStatus}`);
+                      } catch (error) {
+                        toast.error("Erro ao alterar status");
+                      }
+                    }}
+                  >
                     {conta.status}
                   </Badge>
                 </TableCell>

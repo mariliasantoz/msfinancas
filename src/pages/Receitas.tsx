@@ -156,7 +156,19 @@ export default function Receitas() {
                       {formatCurrency(Number(receita.valor), showValues)}
                     </TableCell>
                     <TableCell>
-                      <Badge variant={receita.status === "Recebido" ? "default" : "outline"}>
+                      <Badge 
+                        variant={receita.status === "Recebido" ? "default" : "outline"}
+                        className="cursor-pointer hover:opacity-80"
+                        onClick={async () => {
+                          const novoStatus = receita.status === "Recebido" ? "A Receber" : "Recebido";
+                          try {
+                            await updateTransaction.mutateAsync({ id: receita.id, status: novoStatus });
+                            toast.success(`Status alterado para ${novoStatus}`);
+                          } catch (error) {
+                            toast.error("Erro ao alterar status");
+                          }
+                        }}
+                      >
                         {receita.status}
                       </Badge>
                     </TableCell>
