@@ -1,20 +1,18 @@
 import { useMemo } from "react";
 import { MonthNavigator } from "@/components/MonthNavigator";
 import { StatsCard } from "@/components/StatsCard";
+import { PaymentProgressCard } from "@/components/PaymentProgressCard";
 import { useTransactions } from "@/hooks/useTransactions";
-import { useConfig } from "@/hooks/useConfig";
-import { formatCurrency, getMonthReference } from "@/lib/formatters";
+import { formatCurrency } from "@/lib/formatters";
 import { useMonth } from "@/contexts/MonthContext";
 import { useView } from "@/contexts/ViewContext";
-import { TrendingUp, TrendingDown, Wallet, Target, AlertCircle } from "lucide-react";
+import { TrendingUp, TrendingDown, Wallet } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { PieChart, Pie, Cell, ResponsiveContainer, Legend, BarChart, Bar, XAxis, YAxis, Tooltip } from "recharts";
-import { Alert, AlertDescription } from "@/components/ui/alert";
 
 export default function Dashboard() {
   const { currentDate, setCurrentDate } = useMonth();
   const { transactions, isLoading } = useTransactions(currentDate);
-  const { config } = useConfig();
   const { showValues } = useView();
 
   const stats = useMemo(() => {
@@ -27,11 +25,9 @@ export default function Dashboard() {
       .reduce((sum, t) => sum + Number(t.valor), 0);
 
     const saldo = receitas - despesas;
-    const metaMensal = config?.meta_mensal || 8000;
-    const percentualMeta = metaMensal > 0 ? (despesas / metaMensal) * 100 : 0;
 
-    return { receitas, despesas, saldo, metaMensal, percentualMeta };
-  }, [transactions, config]);
+    return { receitas, despesas, saldo };
+  }, [transactions]);
 
   const despesasPorCategoria = useMemo(() => {
     const categorias = transactions
@@ -78,7 +74,7 @@ export default function Dashboard() {
         <MonthNavigator currentDate={currentDate} onDateChange={setCurrentDate} />
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <StatsCard
           title="Total de Receitas"
           value={formatCurrency(stats.receitas, showValues)}
@@ -97,35 +93,9 @@ export default function Dashboard() {
           icon={Wallet}
           variant={stats.saldo >= 0 ? "liana" : "stefany"}
         />
-        <StatsCard
-          title="Meta Mensal"
-          value={formatCurrency(stats.metaMensal, showValues)}
-          icon={Target}
-          variant="nosso"
-          subtitle={`${stats.percentualMeta.toFixed(1)}% utilizado`}
-        />
       </div>
 
-      {stats.percentualMeta >= 80 && (
-        <Alert>
-          <AlertCircle className="h-4 w-4" />
-          <AlertDescription>
-            {stats.percentualMeta >= 100
-              ? "⚠️ Você ultrapassou a meta mensal!"
-              : `⚠️ Você atingiu ${stats.percentualMeta.toFixed(1)}% da meta mensal.`}
-          </AlertDescription>
-        </Alert>
-      )}
-
-      {stats.percentualMeta < 80 && stats.percentualMeta > 0 && (
-        <Alert className="border-liana bg-liana/5">
-          <AlertCircle className="h-4 w-4 text-liana-foreground" />
-          <AlertDescription className="text-liana-foreground">
-            ✅ Você gastou {stats.percentualMeta.toFixed(1)}% da meta de {formatCurrency(stats.metaMensal, showValues)}. Continue
-            controlando bem! 👏
-          </AlertDescription>
-        </Alert>
-      )}
+      <PaymentProgressCard transactions={transactions} showValues={showValues} />
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <Card className="shadow-lg">
