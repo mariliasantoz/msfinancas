@@ -80,6 +80,24 @@ export function useTransactions(currentDate: Date) {
     },
   });
 
+  // Atualiza APENAS o status de uma transação específica (não afeta outras parcelas)
+  const updateTransactionStatus = useMutation({
+    mutationFn: async ({ id, status }: { id: string; status: string }) => {
+      const { data, error } = await supabase
+        .from("transacoes")
+        .update({ status })
+        .eq("id", id)
+        .select()
+        .single();
+
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["transactions"] });
+    },
+  });
+
   const updateTransaction = useMutation({
     mutationFn: async ({ id, ...transaction }: Partial<Transaction> & { id: string }) => {
       // Buscar a transação original para verificar se é parcelada
@@ -89,10 +107,10 @@ export function useTransactions(currentDate: Date) {
         .eq("id", id)
         .maybeSingle();
 
-      // Se for parcelada, atualizar todas as parcelas
+      // Se for parcelada, atualizar todas as parcelas (exceto status)
       if (originalTransaction?.grupo_parcelas) {
-        // Campos que NÃO devem ser atualizados: mes_referencia, descricao (mantém "Parcela X/Y")
-        const { mes_referencia, descricao, ...updateFields } = transaction;
+        // Campos que NÃO devem ser atualizados em grupo: mes_referencia, descricao, status
+        const { mes_referencia, descricao, status, ...updateFields } = transaction;
         
         const { data, error } = await supabase
           .from("transacoes")
@@ -157,6 +175,7 @@ export function useTransactions(currentDate: Date) {
     isLoading,
     addTransaction,
     updateTransaction,
+    updateTransactionStatus,
     deleteTransaction,
   };
 }

@@ -16,7 +16,7 @@ import { toast } from "sonner";
 
 export default function Receitas() {
   const { currentDate, setCurrentDate } = useMonth();
-  const { transactions, isLoading, addTransaction, updateTransaction, deleteTransaction } = useTransactions(currentDate);
+  const { transactions, isLoading, addTransaction, updateTransaction, updateTransactionStatus, deleteTransaction } = useTransactions(currentDate);
   const { showValues } = useView();
   
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -162,7 +162,7 @@ export default function Receitas() {
                         onClick={async () => {
                           const novoStatus = receita.status === "Recebido" ? "A Receber" : "Recebido";
                           try {
-                            await updateTransaction.mutateAsync({ id: receita.id, status: novoStatus });
+                            await updateTransactionStatus.mutateAsync({ id: receita.id, status: novoStatus });
                             toast.success(`Status alterado para ${novoStatus}`);
                           } catch (error) {
                             toast.error("Erro ao alterar status");

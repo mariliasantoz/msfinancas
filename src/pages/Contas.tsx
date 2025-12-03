@@ -17,7 +17,7 @@ import { toast } from "sonner";
 
 export default function Contas() {
   const { currentDate, setCurrentDate } = useMonth();
-  const { transactions, isLoading, addTransaction, updateTransaction, deleteTransaction } = useTransactions(currentDate);
+  const { transactions, isLoading, addTransaction, updateTransaction, updateTransactionStatus, deleteTransaction } = useTransactions(currentDate);
   const { showValues } = useView();
   
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -153,7 +153,7 @@ export default function Contas() {
                     onClick={async () => {
                       const novoStatus = conta.status === "Pago" ? "A Pagar" : "Pago";
                       try {
-                        await updateTransaction.mutateAsync({ id: conta.id, status: novoStatus });
+                        await updateTransactionStatus.mutateAsync({ id: conta.id, status: novoStatus });
                         toast.success(`Status alterado para ${novoStatus}`);
                       } catch (error) {
                         toast.error("Erro ao alterar status");
