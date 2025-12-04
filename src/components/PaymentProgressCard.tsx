@@ -19,7 +19,7 @@ interface PaymentProgressCardProps {
 export function PaymentProgressCard({ transactions, showValues }: PaymentProgressCardProps) {
   const stats = useMemo(() => {
     const contasECompras = transactions.filter(
-      (t) => t.tipo === "conta" || t.tipo === "compra"
+      (t) => t.tipo === "conta" || t.tipo === "compra" || t.tipo === "despesa"
     );
 
     const totalMes = contasECompras.reduce((sum, t) => sum + Number(t.valor), 0);
