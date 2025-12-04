@@ -48,6 +48,12 @@ All colors MUST be HSL.
     --nosso: 340 100% 90%;
     --nosso-foreground: 340 100% 35%;
 
+    /* Cores para saldo */
+    --positive: 145 60% 75%;
+    --positive-foreground: 145 70% 25%;
+    --negative: 0 70% 78%;
+    --negative-foreground: 0 70% 30%;
+
     /* Sidebar */
     --sidebar-background: 0 0% 100%;
     --sidebar-foreground: 240 10% 15%;
@@ -109,6 +115,12 @@ All colors MUST be HSL.
     --marilia-foreground: 270 60% 90%;
     --nosso: 340 80% 60%;
     --nosso-foreground: 340 100% 95%;
+
+    /* Cores para saldo - modo escuro */
+    --positive: 145 50% 40%;
+    --positive-foreground: 145 60% 90%;
+    --negative: 0 60% 45%;
+    --negative-foreground: 0 70% 90%;
 
     --sidebar-background: 240 10% 10%;
     --sidebar-foreground: 0 0% 95%;

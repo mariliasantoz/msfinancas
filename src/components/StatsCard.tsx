@@ -6,7 +6,7 @@ interface StatsCardProps {
   title: string;
   value: string;
   icon: LucideIcon;
-  variant?: "default" | "liana" | "stefany" | "marilia" | "nosso";
+  variant?: "default" | "liana" | "stefany" | "marilia" | "nosso" | "positive" | "negative";
   subtitle?: string;
 }
 export function StatsCard({
@@ -25,14 +25,18 @@ export function StatsCard({
     liana: "bg-liana/10 border-liana/20",
     stefany: "bg-stefany/10 border-stefany/20",
     marilia: "bg-marilia/10 border-marilia/20",
-    nosso: "bg-nosso/10 border-nosso/20"
+    nosso: "bg-nosso/10 border-nosso/20",
+    positive: "bg-positive/15 border-positive/30",
+    negative: "bg-negative/15 border-negative/30"
   };
   const iconClasses = {
     default: "text-primary",
     liana: "text-liana-foreground",
     stefany: "text-stefany-foreground",
     marilia: "text-marilia-foreground",
-    nosso: "text-nosso-foreground"
+    nosso: "text-nosso-foreground",
+    positive: "text-positive-foreground",
+    negative: "text-negative-foreground"
   };
   return <Card className={cn("border-2 shadow-md hover:shadow-lg transition-all", variantClasses[variant])}>
       <CardContent className="p-6">

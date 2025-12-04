@@ -91,7 +91,7 @@ export default function Dashboard() {
           title="Saldo do Mês"
           value={formatCurrency(stats.saldo, showValues)}
           icon={Wallet}
-          variant={stats.saldo >= 0 ? "liana" : "stefany"}
+          variant={stats.saldo >= 0 ? "positive" : "negative"}
         />
       </div>
 
