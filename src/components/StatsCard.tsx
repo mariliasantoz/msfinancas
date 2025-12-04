@@ -39,7 +39,7 @@ export function StatsCard({
     negative: "text-negative-foreground"
   };
   return <Card className={cn("border-2 shadow-md hover:shadow-lg transition-all", variantClasses[variant])}>
-      <CardContent className="p-6">
+      <CardContent className="p-6 border">
         <div className="flex items-start justify-between">
           <div className="space-y-2">
             <p className="text-sm font-medium text-muted-foreground">{title}</p>
