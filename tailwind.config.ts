@@ -73,6 +73,14 @@ export default {
           DEFAULT: "hsl(var(--nosso))",
           foreground: "hsl(var(--nosso-foreground))",
         },
+        positive: {
+          DEFAULT: "hsl(var(--positive))",
+          foreground: "hsl(var(--positive-foreground))",
+        },
+        negative: {
+          DEFAULT: "hsl(var(--negative))",
+          foreground: "hsl(var(--negative-foreground))",
+        },
       },
       boxShadow: {
         sm: "var(--shadow-sm)",
