@@ -47,12 +47,16 @@ export function useTransactions(currentDate: Date) {
           // Começar a contar a partir do mês seguinte à data da transação
           const mesRef = getMonthReferenceFromDate(transaction.data, i);
           
+          // Cada parcela inicia com status individual (A Pagar/A Receber)
+          const statusInicial = transaction.tipo === "receita" ? "A Receber" : "A Pagar";
+          
           transacoes.push({
             ...transaction,
             descricao: `${transaction.descricao} - Parcela ${i}/${transaction.parcelas}`,
             valor: transaction.valor,
             mes_referencia: mesRef,
             grupo_parcelas: grupoParcelasId,
+            status: statusInicial,
           });
         }
 
