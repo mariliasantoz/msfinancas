@@ -24,6 +24,7 @@ export function ReceitaDialog({ open, onOpenChange, transaction, onSave, current
     valor: "",
     responsavel: "",
     status: "A Receber",
+    parcelas: "1",
   });
 
   useEffect(() => {
@@ -34,6 +35,7 @@ export function ReceitaDialog({ open, onOpenChange, transaction, onSave, current
         valor: transaction.valor.toString(),
         responsavel: transaction.responsavel,
         status: transaction.status,
+        parcelas: transaction.parcelas?.toString() || "1",
       });
     } else {
       const year = currentDate.getFullYear();
@@ -46,6 +48,7 @@ export function ReceitaDialog({ open, onOpenChange, transaction, onSave, current
         valor: "",
         responsavel: "",
         status: "A Receber",
+        parcelas: "1",
       });
     }
   }, [transaction, currentDate, open]);
@@ -61,6 +64,7 @@ export function ReceitaDialog({ open, onOpenChange, transaction, onSave, current
 
     const mes = new Date(formData.data);
     const mesReferencia = getMonthReference(mes);
+    const parcelas = parseInt(formData.parcelas) || 1;
 
     const transactionData: Partial<Transaction> = {
       data: formData.data,
@@ -71,6 +75,8 @@ export function ReceitaDialog({ open, onOpenChange, transaction, onSave, current
       responsavel: formData.responsavel as Transaction["responsavel"],
       status: formData.status as Transaction["status"],
       mes_referencia: mesReferencia,
+      parcelas: parcelas,
+      forma_pagamento: parcelas > 1 ? "Parcelado" : undefined,
     };
 
     if (transaction) {
@@ -157,6 +163,25 @@ export function ReceitaDialog({ open, onOpenChange, transaction, onSave, current
                 <SelectItem value="A Receber">A Receber</SelectItem>
               </SelectContent>
             </Select>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="parcelas">Parcelas (meses)</Label>
+            <Input
+              id="parcelas"
+              type="number"
+              min="1"
+              max="120"
+              value={formData.parcelas}
+              onChange={(e) => setFormData({ ...formData, parcelas: e.target.value })}
+              placeholder="1"
+              disabled={!!transaction}
+            />
+            <p className="text-xs text-muted-foreground">
+              {transaction 
+                ? "Não é possível alterar parcelas após cadastro" 
+                : "Quantidade de meses que essa receita será recebida"}
+            </p>
           </div>
 
           <DialogFooter>
