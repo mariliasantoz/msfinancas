@@ -150,7 +150,14 @@ export default function Receitas() {
                 {receitas.map((receita) => (
                   <TableRow key={receita.id}>
                     <TableCell>{formatDate(receita.data)}</TableCell>
-                    <TableCell className="font-medium">{receita.descricao}</TableCell>
+                    <TableCell className="font-medium">
+                      {receita.descricao}
+                      {receita.grupo_parcelas && (
+                        <Badge variant="secondary" className="ml-2 text-xs">
+                          Parcelada
+                        </Badge>
+                      )}
+                    </TableCell>
                     <TableCell>{receita.responsavel}</TableCell>
                     <TableCell className="text-right font-bold text-liana-foreground">
                       {formatCurrency(Number(receita.valor), showValues)}
@@ -215,7 +222,9 @@ export default function Receitas() {
           <AlertDialogHeader>
             <AlertDialogTitle>Confirmar exclusão</AlertDialogTitle>
             <AlertDialogDescription>
-              Tem certeza que deseja excluir esta receita? Esta ação não pode ser desfeita.
+              {receitas.find(r => r.id === deletingId)?.grupo_parcelas
+                ? "Esta receita possui parcelas em outros meses. Excluir irá remover TODAS as parcelas. Deseja continuar?"
+                : "Tem certeza que deseja excluir esta receita? Esta ação não pode ser desfeita."}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
