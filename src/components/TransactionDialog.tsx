@@ -19,11 +19,13 @@ interface TransactionDialogProps {
 
 const categorias = [
   "Alimentação",
-  "Transporte",
-  "Saúde",
+  "Beleza",
   "Educação",
   "Lazer",
   "Moradia",
+  "Saúde",
+  "Transporte",
+  "Vendas",
   "Vestuário",
   "Outros",
 ];
