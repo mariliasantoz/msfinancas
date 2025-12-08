@@ -2,6 +2,7 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Search } from "lucide-react";
 import { useCartoes } from "@/hooks/useCartoes";
+import { useCategorias } from "@/hooks/useCategorias";
 
 interface FilterBarProps {
   searchValue: string;
@@ -20,7 +21,6 @@ interface FilterBarProps {
 }
 
 const responsaveis = ["Todos", "Liana", "Stefany", "Marília", "Nosso ❤️"];
-const categorias = ["Todas", "Alimentação", "Transporte", "Saúde", "Educação", "Lazer", "Moradia", "Vestuário", "Outros"];
 const statusOptions = ["Todos", "Pago", "A Pagar", "Recebido", "A Receber"];
 
 export function FilterBar({
@@ -39,7 +39,9 @@ export function FilterBar({
   showStatus = true,
 }: FilterBarProps) {
   const { cartoes } = useCartoes();
+  const { categorias } = useCategorias();
   const cartoesOptions = ["Todos", ...cartoes.map(c => c.nome)];
+  const categoriasOptions = ["Todas", ...categorias.map(c => c.nome)];
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 mb-6">
@@ -72,7 +74,7 @@ export function FilterBar({
             <SelectValue placeholder="Categoria" />
           </SelectTrigger>
           <SelectContent>
-            {categorias.map((cat) => (
+            {categoriasOptions.map((cat) => (
               <SelectItem key={cat} value={cat}>
                 {cat}
               </SelectItem>
