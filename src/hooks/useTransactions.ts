@@ -44,8 +44,10 @@ export function useTransactions(currentDate: Date) {
         const transacoes = [];
 
         for (let i = 1; i <= transaction.parcelas; i++) {
-          // Começar a contar a partir do mês seguinte à data da transação
-          const mesRef = getMonthReferenceFromDate(transaction.data, i);
+          // Para receitas: começar no mesmo mês (i-1)
+          // Para outros tipos (compras/contas): começar no mês seguinte (i)
+          const monthOffset = transaction.tipo === "receita" ? (i - 1) : i;
+          const mesRef = getMonthReferenceFromDate(transaction.data, monthOffset);
           
           // Cada parcela inicia com status individual (A Pagar/A Receber)
           const statusInicial = transaction.tipo === "receita" ? "A Receber" : "A Pagar";
