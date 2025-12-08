@@ -152,11 +152,6 @@ export default function Receitas() {
                     <TableCell>{formatDate(receita.data)}</TableCell>
                     <TableCell className="font-medium">
                       {receita.descricao}
-                      {receita.grupo_parcelas && (
-                        <Badge variant="secondary" className="ml-2 text-xs">
-                          Parcelada
-                        </Badge>
-                      )}
                     </TableCell>
                     <TableCell>{receita.responsavel}</TableCell>
                     <TableCell className="text-right font-bold text-liana-foreground">
