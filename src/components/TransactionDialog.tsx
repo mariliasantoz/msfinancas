@@ -6,6 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Transaction } from "@/hooks/useTransactions";
 import { useCartoes } from "@/hooks/useCartoes";
+import { useCategorias } from "@/hooks/useCategorias";
 import { getMonthReference } from "@/lib/formatters";
 
 interface TransactionDialogProps {
@@ -16,19 +17,6 @@ interface TransactionDialogProps {
   onSave: (transaction: Omit<Transaction, "id">) => void;
   currentDate: Date;
 }
-
-const categorias = [
-  "Alimentação",
-  "Beleza",
-  "Educação",
-  "Lazer",
-  "Moradia",
-  "Saúde",
-  "Transporte",
-  "Vendas",
-  "Vestuário",
-  "Outros",
-];
 
 const responsaveis = ["Liana", "Stefany", "Marília", "Nosso ❤️"];
 const formasPagamento = ["PIX", "Cartão", "Parcelado", "Dinheiro", "Outros"];
@@ -42,6 +30,7 @@ export function TransactionDialog({
   currentDate,
 }: TransactionDialogProps) {
   const { cartoes } = useCartoes();
+  const { categorias } = useCategorias();
   const [formData, setFormData] = useState({
     data: "",
     descricao: "",
@@ -164,8 +153,8 @@ export function TransactionDialog({
                 </SelectTrigger>
                 <SelectContent>
                   {categorias.map((cat) => (
-                    <SelectItem key={cat} value={cat}>
-                      {cat}
+                    <SelectItem key={cat.id} value={cat.nome}>
+                      {cat.nome}
                     </SelectItem>
                   ))}
                 </SelectContent>
