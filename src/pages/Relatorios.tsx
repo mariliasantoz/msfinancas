@@ -10,6 +10,11 @@ import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip, BarChart, Ba
 import { MonthNavigator } from "@/components/MonthNavigator";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Badge } from "@/components/ui/badge";
+import { ChevronRight } from "lucide-react";
+import { format } from "date-fns";
 
 export default function Relatorios() {
   const { currentDate, setCurrentDate } = useMonth();
@@ -20,10 +25,23 @@ export default function Relatorios() {
 
   const [cartaoFilter, setCartaoFilter] = useState("Todos");
   const [categoriaFilter, setCategoriaFilter] = useState("Todas");
+  const [selectedCategoria, setSelectedCategoria] = useState<string | null>(null);
+  const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
 
   const despesas = useMemo(() => {
     return transactions.filter((t) => t.tipo !== "receita");
   }, [transactions]);
+
+  const transacoesDaCategoriaSelecionada = useMemo(() => {
+    if (!selectedCategoria) return [];
+    return despesas
+      .filter(t => t.categoria === selectedCategoria)
+      .sort((a, b) => new Date(b.data).getTime() - new Date(a.data).getTime());
+  }, [despesas, selectedCategoria]);
+
+  const totalCategoriaSelecionada = useMemo(() => {
+    return transacoesDaCategoriaSelecionada.reduce((sum, t) => sum + Number(t.valor), 0);
+  }, [transacoesDaCategoriaSelecionada]);
 
   const despesasPorCategoria = useMemo(() => {
     const filtered = cartaoFilter === "Todos" 
@@ -75,6 +93,16 @@ export default function Relatorios() {
 
   const cartoesOptions = ["Todos", ...cartoes.map(c => c.nome)];
   const categoriasOptions = ["Todas", ...categorias.map(c => c.nome)];
+
+  const handleCategoriaClick = (categoriaName: string) => {
+    setSelectedCategoria(categoriaName);
+    setIsDetailModalOpen(true);
+  };
+
+  const getCartaoNome = (cartaoId: string | null) => {
+    if (!cartaoId) return "—";
+    return cartoes.find(c => c.id === cartaoId)?.nome || "—";
+  };
 
   return (
     <div className="space-y-6 p-6">
@@ -158,7 +186,11 @@ export default function Relatorios() {
               {totalPorCategoria.length > 0 ? (
                 <div className="space-y-3">
                   {totalPorCategoria.sort((a, b) => b.value - a.value).map((cat, index) => (
-                    <div key={cat.name} className="flex items-center justify-between p-3 rounded-lg bg-muted/50">
+                    <div 
+                      key={cat.name} 
+                      className="flex items-center justify-between p-3 rounded-lg bg-muted/50 cursor-pointer hover:bg-muted transition-colors"
+                      onClick={() => handleCategoriaClick(cat.name)}
+                    >
                       <div className="flex items-center gap-3">
                         <div 
                           className="w-4 h-4 rounded-full" 
@@ -166,7 +198,10 @@ export default function Relatorios() {
                         />
                         <span className="font-medium">{cat.name}</span>
                       </div>
-                      <span className="font-bold">{formatCurrency(cat.value, showValues)}</span>
+                      <div className="flex items-center gap-2">
+                        <span className="font-bold">{formatCurrency(cat.value, showValues)}</span>
+                        <ChevronRight className="h-4 w-4 text-muted-foreground" />
+                      </div>
                     </div>
                   ))}
                 </div>
@@ -265,6 +300,56 @@ export default function Relatorios() {
           </Card>
         </TabsContent>
       </Tabs>
+
+      {/* Modal de detalhes da categoria */}
+      <Dialog open={isDetailModalOpen} onOpenChange={setIsDetailModalOpen}>
+        <DialogContent className="max-w-3xl max-h-[80vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="text-xl">{selectedCategoria}</DialogTitle>
+          </DialogHeader>
+          
+          {transacoesDaCategoriaSelecionada.length > 0 ? (
+            <>
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Data</TableHead>
+                    <TableHead>Descrição</TableHead>
+                    <TableHead>Responsável</TableHead>
+                    <TableHead>Cartão</TableHead>
+                    <TableHead className="text-right">Valor</TableHead>
+                    <TableHead>Status</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {transacoesDaCategoriaSelecionada.map((t) => (
+                    <TableRow key={t.id}>
+                      <TableCell>{format(new Date(t.data), "dd/MM/yyyy")}</TableCell>
+                      <TableCell className="font-medium">{t.descricao}</TableCell>
+                      <TableCell>{t.responsavel}</TableCell>
+                      <TableCell>{getCartaoNome(t.cartao)}</TableCell>
+                      <TableCell className="text-right">{formatCurrency(t.valor, showValues)}</TableCell>
+                      <TableCell>
+                        <Badge variant={t.status === "Pago" || t.status === "Recebido" ? "default" : "secondary"}>
+                          {t.status}
+                        </Badge>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+              
+              <div className="flex justify-end pt-4 border-t">
+                <div className="text-lg font-bold">
+                  Total: {formatCurrency(totalCategoriaSelecionada, showValues)}
+                </div>
+              </div>
+            </>
+          ) : (
+            <p className="text-center text-muted-foreground py-8">Nenhuma transação nesta categoria</p>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
