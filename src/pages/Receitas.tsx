@@ -44,6 +44,9 @@ export default function Receitas() {
   }, [transactions, searchValue, responsavelFilter, statusFilter]);
 
   const totalReceitas = receitas.reduce((sum, r) => sum + Number(r.valor), 0);
+  const totalRecebidas = receitas
+    .filter((r) => r.status === "Recebido")
+    .reduce((sum, r) => sum + Number(r.valor), 0);
 
   const handleSave = async (transaction: any) => {
     try {
@@ -105,6 +108,9 @@ export default function Receitas() {
             <div>
               <p className="text-sm font-medium text-muted-foreground">Total de Receitas</p>
               <p className="text-4xl font-bold text-liana-foreground">{formatCurrency(totalReceitas, showValues)}</p>
+              <p className="text-sm text-muted-foreground mt-1">
+                Recebidas: <span className="font-medium text-liana-foreground/70">{formatCurrency(totalRecebidas, showValues)}</span>
+              </p>
             </div>
             <Button size="lg" className="gap-2" onClick={handleAddNew}>
               <Plus className="h-5 w-5" />
