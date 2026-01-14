@@ -1,11 +1,9 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { useConfig } from "@/hooks/useConfig";
 import { useCartoes } from "@/hooks/useCartoes";
 import { useCategorias } from "@/hooks/useCategorias";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { toast } from "sonner";
 import { Trash2, Plus } from "lucide-react";
 import {
@@ -20,32 +18,13 @@ import {
 } from "@/components/ui/alert-dialog";
 
 export default function Configuracoes() {
-  const { config, updateConfig } = useConfig();
   const { cartoes, addCartao, deleteCartao } = useCartoes();
   const { categorias, addCategoria, deleteCategoria } = useCategorias();
-  const [metaMensal, setMetaMensal] = useState("");
   const [novoCartao, setNovoCartao] = useState("");
   const [novaCategoria, setNovaCategoria] = useState("");
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [deleteType, setDeleteType] = useState<"cartao" | "categoria">("cartao");
-
-  useEffect(() => {
-    if (config) {
-      setMetaMensal(config.meta_mensal.toString());
-    }
-  }, [config]);
-
-  const handleSave = async () => {
-    try {
-      await updateConfig.mutateAsync({
-        meta_mensal: parseFloat(metaMensal),
-      });
-      toast.success("Configurações salvas com sucesso!");
-    } catch (error) {
-      toast.error("Erro ao salvar configurações");
-    }
-  };
 
   const handleAddCartao = async () => {
     if (!novoCartao.trim()) {
@@ -115,30 +94,6 @@ export default function Configuracoes() {
   return (
     <div className="space-y-6 p-6">
       <h1 className="text-3xl font-bold">Configurações ⚙️</h1>
-
-      <Card className="shadow-lg">
-        <CardHeader>
-          <CardTitle>Meta Mensal</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="meta">Meta de Gastos Mensais</Label>
-            <Input
-              id="meta"
-              type="number"
-              value={metaMensal}
-              onChange={(e) => setMetaMensal(e.target.value)}
-              placeholder="8000.00"
-            />
-            <p className="text-sm text-muted-foreground">
-              Defina o valor máximo que deseja gastar por mês
-            </p>
-          </div>
-          <Button onClick={handleSave} disabled={updateConfig.isPending}>
-            {updateConfig.isPending ? "Salvando..." : "Salvar Configurações"}
-          </Button>
-        </CardContent>
-      </Card>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <Card className="shadow-lg">
