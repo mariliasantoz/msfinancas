@@ -4,6 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 export interface Cartao {
   id: string;
   nome: string;
+  vencimento: number | null;
   created_at: string;
 }
 
@@ -39,6 +40,23 @@ export function useCartoes() {
     },
   });
 
+  const updateCartao = useMutation({
+    mutationFn: async ({ id, vencimento }: { id: string; vencimento: number | null }) => {
+      const { data, error } = await supabase
+        .from("cartoes")
+        .update({ vencimento } as any)
+        .eq("id", id)
+        .select()
+        .single();
+
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["cartoes"] });
+    },
+  });
+
   const deleteCartao = useMutation({
     mutationFn: async (id: string) => {
       const { error } = await supabase.from("cartoes").delete().eq("id", id);
@@ -53,6 +71,7 @@ export function useCartoes() {
     cartoes,
     isLoading,
     addCartao,
+    updateCartao,
     deleteCartao,
   };
 }
