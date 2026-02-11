@@ -190,7 +190,7 @@ export default function Receitas() {
                       <div>
                         <span className="text-xs text-muted-foreground">Receber Em:</span>
                         <EditableDateCell
-                          value={receita.data_recebimento || receita.data}
+                          value={receita.data_recebimento || ""}
                           onSave={async (val) => {
                             try {
                               await updateTransaction.mutateAsync({ id: receita.id, data_recebimento: val || null });
