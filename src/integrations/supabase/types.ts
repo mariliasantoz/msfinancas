@@ -86,6 +86,7 @@ export type Database = {
           categoria: string
           created_at: string
           data: string
+          data_recebimento: string | null
           descricao: string
           forma_pagamento: string | null
           grupo_parcelas: string | null
@@ -103,6 +104,7 @@ export type Database = {
           categoria: string
           created_at?: string
           data?: string
+          data_recebimento?: string | null
           descricao: string
           forma_pagamento?: string | null
           grupo_parcelas?: string | null
@@ -120,6 +122,7 @@ export type Database = {
           categoria?: string
           created_at?: string
           data?: string
+          data_recebimento?: string | null
           descricao?: string
           forma_pagamento?: string | null
           grupo_parcelas?: string | null

@@ -1,0 +1,1 @@
+ALTER TABLE public.transacoes ADD COLUMN data_recebimento date;
