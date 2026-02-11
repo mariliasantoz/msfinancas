@@ -1,0 +1,1 @@
+ALTER TABLE transacoes ALTER COLUMN data_recebimento TYPE text;
