@@ -1,74 +1,51 @@
 
 
-## Plano: Melhorias na Pagina Compras / Cartoes
+## Plano: Campo "Receber Em" na Pagina de Receitas
 
-### 1. Adicionar coluna "Vencimento" na tabela `cartoes` (Banco de Dados)
+### Resumo
+Adicionar um novo campo `data_recebimento` na tabela `transacoes` para armazenar a data prevista de recebimento, separada da data de cadastro. Na tabela de receitas, a coluna "Data" passará a exibir o label "Receber Em:" com a data de recebimento editável inline, e abaixo a data original de cadastro.
 
-Criar uma migração para adicionar o campo `vencimento` (integer, nullable) na tabela `cartoes`. Esse campo armazenará o dia do vencimento (1-31).
+### 1. Migração de Banco de Dados
+
+Adicionar a coluna `data_recebimento` (date, nullable) na tabela `transacoes`:
 
 ```sql
-ALTER TABLE cartoes ADD COLUMN vencimento integer;
+ALTER TABLE public.transacoes ADD COLUMN data_recebimento date;
 ```
 
-### 2. Atualizar o hook `useCartoes`
+### 2. Atualizar Interface `Transaction` em `useTransactions.ts`
 
-- Adicionar `vencimento` na interface `Cartao`
-- Criar uma mutation `updateCartao` para atualizar o vencimento de um cartão:
-  ```
-  updateCartao({ id, vencimento })
-  ```
+Adicionar o campo `data_recebimento` (string opcional) na interface `Transaction`.
 
-### 3. Campo de Vencimento editável ao lado do nome de cada cartão
+### 3. Atualizar a Tabela na Pagina `Receitas.tsx`
 
-No `ComprasAgrupadas.tsx`, ao lado do nome do cartão no header de cada card:
-- Exibir "Venc. dia XX" se já tiver vencimento cadastrado
-- Ao clicar, abrir um input inline para editar o dia (1-31)
-- Salvar automaticamente ao confirmar (blur ou Enter)
+Na coluna "Data" de cada receita, exibir:
 
 ```
-┌─────────────────────────────────────────────────┐
-│  [icone] NUBANK  |  Venc. dia 15 [editar]       │
-│  R$ 1.500,00                                    │
-│  5 compras                                      │
-└─────────────────────────────────────────────────┘
+Receber Em: [data editável]
+dd/mm/aaaa (data cadastro)
 ```
 
-### 4. Campo de filtro geral no topo da página
+- O label "Receber Em:" aparece em texto menor e discreto
+- A data de recebimento é editável via um input de data inline (clicável para editar)
+- Abaixo, a data original de cadastro aparece em fonte menor e cor discreta
+- Ao alterar a data de recebimento, salvar automaticamente no banco via `updateTransaction`
 
-Adicionar um campo de busca global no card de "Total de Compras", ao lado do valor total. Este filtro buscará em todas as compras de todos os cartões simultaneamente por descrição ou valor.
+### 4. Atualizar o Dialog `ReceitaDialog.tsx`
 
-- Quando ativo, filtrar `comprasPorCartao` aplicando o termo de busca
-- Cartões sem resultados ficam ocultos
-- Limpar o filtro restaura a visualização normal
-
-```
-┌─────────────────────────────────────────────────────────┐
-│  Total de Compras           [🔍 Buscar em todos...]     │
-│  R$ 8.500,00                                            │
-└─────────────────────────────────────────────────────────┘
-```
-
-### 5. Botão "Nova Compra" flutuante
-
-Remover o botão do card de total e torná-lo um botão flutuante (fixed) no canto inferior direito da tela, sempre visível ao rolar a página.
-
-```css
-fixed bottom-6 right-6 z-50 shadow-xl rounded-full
-```
+Adicionar o campo "Receber Em" no formulário de criação/edição de receitas, permitindo definir a data prevista de recebimento ao cadastrar.
 
 ### Arquivos a modificar
 
-| Arquivo | Alteração |
+| Arquivo | Alteracao |
 |---------|-----------|
-| Migração SQL | Adicionar coluna `vencimento` na tabela `cartoes` |
-| `src/hooks/useCartoes.ts` | Adicionar campo `vencimento` na interface e mutation `updateCartao` |
-| `src/pages/ComprasAgrupadas.tsx` | Campo vencimento editável, filtro geral, botão flutuante |
+| Migracao SQL | Adicionar coluna `data_recebimento` |
+| `src/hooks/useTransactions.ts` | Adicionar `data_recebimento` na interface |
+| `src/pages/Receitas.tsx` | Exibir campo editavel "Receber Em" na coluna Data |
+| `src/components/ReceitaDialog.tsx` | Adicionar campo "Receber Em" no formulario |
 
-### Detalhes Técnicos
+### Detalhes Tecnicos
 
-**Vencimento**: Será armazenado como integer (dia do mês, 1-31). A edição será inline com um input numérico pequeno que aparece ao clicar no texto do vencimento. O salvamento ocorre ao pressionar Enter ou ao sair do campo (onBlur).
+**Edicao inline**: Ao clicar na data de recebimento na tabela, um input `type="date"` aparece. Ao confirmar (blur ou Enter), a data e salva via `updateTransaction`. Se nao houver `data_recebimento` definida, exibe a data de cadastro como fallback.
 
-**Filtro geral**: Um estado `globalSearch` controlará a busca. O `useMemo` de `comprasPorCartao` será ajustado para aplicar o filtro global quando preenchido, filtrando por `descricao` e `valor` em todas as compras.
-
-**Botão flutuante**: Será posicionado com `fixed bottom-6 right-6` com `z-50` para garantir que fique acima de todo o conteúdo. Terá sombra e formato arredondado para destaque visual.
-
+**Formulario**: O campo "Receber Em" sera um input de data separado do campo "Data" existente, com valor padrao igual a data de cadastro.
