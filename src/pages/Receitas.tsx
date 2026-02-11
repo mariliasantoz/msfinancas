@@ -34,7 +34,7 @@ function EditableDateCell({ value, onSave }: { value: string; onSave: (val: stri
   return (
     <input
       type="text"
-      className="block w-full text-sm bg-transparent border-b border-dashed border-muted-foreground/30 focus:border-primary focus:outline-none py-0.5"
+      className="block w-24 text-sm bg-transparent border-b border-dashed border-muted-foreground/30 focus:border-primary focus:outline-none py-0.5"
       placeholder="dd/mm/aaaa"
       value={editing ? localValue : value}
       onFocus={() => { setLocalValue(value); setEditing(true); }}
@@ -175,7 +175,7 @@ export default function Receitas() {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Data</TableHead>
+                  <TableHead className="w-[120px]">Data</TableHead>
                   <TableHead>Descrição</TableHead>
                   <TableHead>Responsável</TableHead>
                   <TableHead className="text-right">Valor</TableHead>
