@@ -156,24 +156,21 @@ export default function Receitas() {
                 {receitas.map((receita) => (
                   <TableRow key={receita.id}>
                     <TableCell>
-                      <div className="space-y-1">
-                        <div>
-                          <span className="text-xs text-muted-foreground">Receber Em:</span>
-                          <input
-                            type="date"
-                            className="block w-full text-sm bg-transparent border-b border-dashed border-muted-foreground/30 focus:border-primary focus:outline-none py-0.5"
-                            value={receita.data_recebimento || receita.data}
-                            onChange={async (e) => {
-                              try {
-                                await updateTransaction.mutateAsync({ id: receita.id, data_recebimento: e.target.value });
-                                toast.success("Data de recebimento atualizada");
-                              } catch {
-                                toast.error("Erro ao atualizar data");
-                              }
-                            }}
-                          />
-                        </div>
-                        <p className="text-xs text-muted-foreground/60">{formatDate(receita.data)}</p>
+                      <div>
+                        <span className="text-xs text-muted-foreground">Receber Em:</span>
+                        <input
+                          type="date"
+                          className="block w-full text-sm bg-transparent border-b border-dashed border-muted-foreground/30 focus:border-primary focus:outline-none py-0.5"
+                          value={receita.data_recebimento || receita.data}
+                          onChange={async (e) => {
+                            try {
+                              await updateTransaction.mutateAsync({ id: receita.id, data_recebimento: e.target.value });
+                              toast.success("Data de recebimento atualizada");
+                            } catch {
+                              toast.error("Erro ao atualizar data");
+                            }
+                          }}
+                        />
                       </div>
                     </TableCell>
                     <TableCell className="font-medium">
