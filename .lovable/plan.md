@@ -1,29 +1,36 @@
 
-## Substituir "Maior Gasto do Mes" por duas listas lado a lado
+
+## Alterar "Contas a Pagar" no Dashboard
 
 ### O que muda
-A seção "Maior Gasto do Mês" (linhas 154-174) sera removida e substituida por duas cards lado a lado:
 
-1. **Contas a Pagar** - Lista todas as transacoes do mes com status "A Pagar" (tipo: despesa, conta, compra)
-2. **Receitas a Receber** - Lista todas as receitas do mes com status "A Receber"
+A lista "Contas a Pagar" no Dashboard deixara de listar cada compra de cartao individualmente. Em vez disso:
 
-### Layout
-Duas cards em grid `grid-cols-1 lg:grid-cols-2`, cada uma com:
-- Icone e titulo no header
-- Lista scrollavel das transacoes pendentes (descricao + valor)
-- Mensagem vazia quando nao houver itens pendentes
-- Total pendente no rodape de cada card
+- **Cartoes**: Agrupa todas as compras pendentes ("A Pagar") por cartao e exibe apenas o nome do cartao com o total somado
+- **Contas fixas** (tipo "conta") e **contas variaveis** (tipo "despesa"): Continuam listadas individualmente como ja estao
+
+### Como vai ficar a lista
+
+```
+Cartao Nubank .............. R$ 1.200,00
+Cartao Inter ............... R$ 800,00
+Conta de Luz ............... R$ 150,00
+Internet ................... R$ 120,00
+```
 
 ### Detalhes Tecnicos
 
 **Arquivo**: `src/pages/Dashboard.tsx`
 
-- Remover o `useMemo` de `maiorGasto` (linhas 54-58)
-- Adicionar dois novos `useMemo`:
-  - `contasAPagar`: filtra transacoes com `tipo !== "receita"` e `status === "A Pagar"`
-  - `receitasAReceber`: filtra transacoes com `tipo === "receita"` e `status === "A Receber"`
-- Substituir o bloco JSX do "Maior Gasto" (linhas 154-174) por um grid com duas cards:
-  - Card esquerda: icone Clock, borda stefany, lista `contasAPagar` com descricao e valor
-  - Card direita: icone TrendingUp, borda liana, lista `receitasAReceber` com descricao e valor
-  - Cada card com `max-h` e `overflow-y-auto` para scroll quando houver muitos itens
-  - Rodape com total de cada lista
+1. Importar `useCartoes` para obter os nomes dos cartoes (a transacao armazena o ID do cartao, nao o nome)
+
+2. Substituir o `useMemo` de `contasAPagar` por uma logica que:
+   - Filtra transacoes nao-receita com status "A Pagar"
+   - Separa em dois grupos:
+     - `contasFixasEVariaveis`: transacoes com tipo "conta" ou "despesa" (listadas individualmente)
+     - `cartoesAgrupados`: transacoes com tipo "compra", agrupadas pelo campo `cartao` (ID), somando os valores e exibindo o nome do cartao via `useCartoes`
+   - Combina ambos em uma lista unica de itens `{ descricao, valor }` para renderizar
+
+3. Atualizar o calculo de `totalAPagar` para somar todos os itens da lista combinada
+
+4. A renderizacao JSX permanece praticamente igual (descricao + valor), so muda a fonte de dados
