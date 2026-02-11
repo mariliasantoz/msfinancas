@@ -7,6 +7,7 @@ import { formatCurrency } from "@/lib/formatters";
 import { useMonth } from "@/contexts/MonthContext";
 import { useView } from "@/contexts/ViewContext";
 import { TrendingUp, TrendingDown, Wallet, Clock } from "lucide-react";
+import { useCartoes } from "@/hooks/useCartoes";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { PieChart, Pie, Cell, ResponsiveContainer, Legend, BarChart, Bar, XAxis, YAxis, Tooltip } from "recharts";
 
@@ -14,6 +15,7 @@ export default function Dashboard() {
   const { currentDate, setCurrentDate } = useMonth();
   const { transactions, isLoading } = useTransactions(currentDate);
   const { showValues } = useView();
+  const { cartoes } = useCartoes();
 
   const stats = useMemo(() => {
     const receitas = transactions
@@ -52,14 +54,35 @@ export default function Dashboard() {
   }, [transactions]);
 
   const contasAPagar = useMemo(() => {
-    return transactions.filter((t) => t.tipo !== "receita" && t.status === "A Pagar");
-  }, [transactions]);
+    const pendentes = transactions.filter((t) => t.tipo !== "receita" && t.status === "A Pagar");
+    
+    // Contas fixas e variáveis (listadas individualmente)
+    const individuais = pendentes
+      .filter((t) => t.tipo === "conta" || t.tipo === "despesa")
+      .map((t) => ({ descricao: t.descricao, valor: Number(t.valor) }));
+    
+    // Compras de cartão agrupadas por cartão
+    const cartaoMap: Record<string, number> = {};
+    pendentes
+      .filter((t) => t.tipo === "compra")
+      .forEach((t) => {
+        const key = t.cartao || "sem-cartao";
+        cartaoMap[key] = (cartaoMap[key] || 0) + Number(t.valor);
+      });
+    
+    const cartoesAgrupados = Object.entries(cartaoMap).map(([cartaoId, valor]) => {
+      const cartao = cartoes.find((c) => c.id === cartaoId);
+      return { descricao: cartao?.nome || "Cartão", valor };
+    });
+    
+    return [...cartoesAgrupados, ...individuais];
+  }, [transactions, cartoes]);
 
+  const totalAPagar = useMemo(() => contasAPagar.reduce((sum, item) => sum + item.valor, 0), [contasAPagar]);
   const receitasAReceber = useMemo(() => {
     return transactions.filter((t) => t.tipo === "receita" && t.status === "A Receber");
   }, [transactions]);
 
-  const totalAPagar = useMemo(() => contasAPagar.reduce((sum, t) => sum + Number(t.valor), 0), [contasAPagar]);
   const totalAReceber = useMemo(() => receitasAReceber.reduce((sum, t) => sum + Number(t.valor), 0), [receitasAReceber]);
 
   const COLORS = ["hsl(var(--liana))", "hsl(var(--stefany))", "hsl(var(--marilia))", "hsl(var(--nosso))", "hsl(var(--primary))"];
@@ -167,10 +190,10 @@ export default function Dashboard() {
           <CardContent>
             {contasAPagar.length > 0 ? (
               <div className="max-h-48 overflow-y-auto space-y-2">
-                {contasAPagar.map((t) => (
-                  <div key={t.id} className="flex items-center justify-between py-1 border-b border-border/50 last:border-0">
-                    <span className="text-sm truncate mr-2">{t.descricao}</span>
-                    <span className="text-sm font-semibold text-stefany-foreground whitespace-nowrap">{formatCurrency(Number(t.valor), showValues)}</span>
+                {contasAPagar.map((item, index) => (
+                  <div key={index} className="flex items-center justify-between py-1 border-b border-border/50 last:border-0">
+                    <span className="text-sm truncate mr-2">{item.descricao}</span>
+                    <span className="text-sm font-semibold text-stefany-foreground whitespace-nowrap">{formatCurrency(item.valor, showValues)}</span>
                   </div>
                 ))}
               </div>
