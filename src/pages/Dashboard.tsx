@@ -6,7 +6,7 @@ import { useTransactions } from "@/hooks/useTransactions";
 import { formatCurrency } from "@/lib/formatters";
 import { useMonth } from "@/contexts/MonthContext";
 import { useView } from "@/contexts/ViewContext";
-import { TrendingUp, TrendingDown, Wallet } from "lucide-react";
+import { TrendingUp, TrendingDown, Wallet, Clock } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { PieChart, Pie, Cell, ResponsiveContainer, Legend, BarChart, Bar, XAxis, YAxis, Tooltip } from "recharts";
 
@@ -51,11 +51,16 @@ export default function Dashboard() {
     return Object.entries(responsaveis).map(([name, value]) => ({ name, value }));
   }, [transactions]);
 
-  const maiorGasto = useMemo(() => {
-    return transactions
-      .filter((t) => t.tipo !== "receita")
-      .sort((a, b) => Number(b.valor) - Number(a.valor))[0];
+  const contasAPagar = useMemo(() => {
+    return transactions.filter((t) => t.tipo !== "receita" && t.status === "A Pagar");
   }, [transactions]);
+
+  const receitasAReceber = useMemo(() => {
+    return transactions.filter((t) => t.tipo === "receita" && t.status === "A Receber");
+  }, [transactions]);
+
+  const totalAPagar = useMemo(() => contasAPagar.reduce((sum, t) => sum + Number(t.valor), 0), [contasAPagar]);
+  const totalAReceber = useMemo(() => receitasAReceber.reduce((sum, t) => sum + Number(t.valor), 0), [receitasAReceber]);
 
   const COLORS = ["hsl(var(--liana))", "hsl(var(--stefany))", "hsl(var(--marilia))", "hsl(var(--nosso))", "hsl(var(--primary))"];
 
@@ -151,27 +156,65 @@ export default function Dashboard() {
         </Card>
       </div>
 
-      {maiorGasto && (
-        <Card className="shadow-lg border-2 border-nosso/20 bg-nosso/5">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <Card className="shadow-lg border-2 border-stefany/20">
           <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <TrendingDown className="h-5 w-5 text-nosso-foreground" />
-              Maior Gasto do Mês
+            <CardTitle className="flex items-center gap-2 text-lg">
+              <Clock className="h-5 w-5 text-stefany-foreground" />
+              Contas a Pagar
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-2xl font-bold">{maiorGasto.descricao}</p>
-                <p className="text-muted-foreground">
-                  {maiorGasto.categoria} • {maiorGasto.responsavel}
-                </p>
+            {contasAPagar.length > 0 ? (
+              <div className="max-h-48 overflow-y-auto space-y-2">
+                {contasAPagar.map((t) => (
+                  <div key={t.id} className="flex items-center justify-between py-1 border-b border-border/50 last:border-0">
+                    <span className="text-sm truncate mr-2">{t.descricao}</span>
+                    <span className="text-sm font-semibold text-stefany-foreground whitespace-nowrap">{formatCurrency(Number(t.valor), showValues)}</span>
+                  </div>
+                ))}
               </div>
-              <p className="text-3xl font-bold text-nosso-foreground">{formatCurrency(Number(maiorGasto.valor), showValues)}</p>
-            </div>
+            ) : (
+              <p className="text-center text-muted-foreground py-4 text-sm">Tudo pago! 🎉</p>
+            )}
           </CardContent>
+          {contasAPagar.length > 0 && (
+            <div className="flex items-center justify-between px-6 pb-4 pt-0">
+              <span className="text-sm text-muted-foreground">Total pendente</span>
+              <span className="font-bold text-stefany-foreground">{formatCurrency(totalAPagar, showValues)}</span>
+            </div>
+          )}
         </Card>
-      )}
+
+        <Card className="shadow-lg border-2 border-liana/20">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-lg">
+              <TrendingUp className="h-5 w-5 text-liana-foreground" />
+              Receitas a Receber
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            {receitasAReceber.length > 0 ? (
+              <div className="max-h-48 overflow-y-auto space-y-2">
+                {receitasAReceber.map((t) => (
+                  <div key={t.id} className="flex items-center justify-between py-1 border-b border-border/50 last:border-0">
+                    <span className="text-sm truncate mr-2">{t.descricao}</span>
+                    <span className="text-sm font-semibold text-liana-foreground whitespace-nowrap">{formatCurrency(Number(t.valor), showValues)}</span>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p className="text-center text-muted-foreground py-4 text-sm">Tudo recebido! 🎉</p>
+            )}
+          </CardContent>
+          {receitasAReceber.length > 0 && (
+            <div className="flex items-center justify-between px-6 pb-4 pt-0">
+              <span className="text-sm text-muted-foreground">Total a receber</span>
+              <span className="font-bold text-liana-foreground">{formatCurrency(totalAReceber, showValues)}</span>
+            </div>
+          )}
+        </Card>
+      </div>
     </div>
   );
 }
