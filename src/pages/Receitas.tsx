@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useCallback } from "react";
 import { MonthNavigator } from "@/components/MonthNavigator";
 import { useTransactions } from "@/hooks/useTransactions";
 import { formatCurrency, formatDate } from "@/lib/formatters";
@@ -13,6 +13,37 @@ import { ReceitaDialog } from "@/components/ReceitaDialog";
 import { FilterBar } from "@/components/FilterBar";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { toast } from "sonner";
+
+function EditableDateCell({ value, onSave }: { value: string; onSave: (val: string) => void }) {
+  const [localValue, setLocalValue] = useState(value);
+  const [editing, setEditing] = useState(false);
+
+  const handleBlur = useCallback(() => {
+    setEditing(false);
+    if (localValue !== value) {
+      onSave(localValue);
+    }
+  }, [localValue, value, onSave]);
+
+  const handleKeyDown = useCallback((e: React.KeyboardEvent) => {
+    if (e.key === "Enter") {
+      (e.target as HTMLInputElement).blur();
+    }
+  }, []);
+
+  return (
+    <input
+      type="text"
+      className="block w-full text-sm bg-transparent border-b border-dashed border-muted-foreground/30 focus:border-primary focus:outline-none py-0.5"
+      placeholder="dd/mm/aaaa"
+      value={editing ? localValue : value}
+      onFocus={() => { setLocalValue(value); setEditing(true); }}
+      onChange={(e) => setLocalValue(e.target.value)}
+      onBlur={handleBlur}
+      onKeyDown={handleKeyDown}
+    />
+  );
+}
 
 export default function Receitas() {
   const { currentDate, setCurrentDate } = useMonth();
@@ -158,13 +189,11 @@ export default function Receitas() {
                     <TableCell>
                       <div>
                         <span className="text-xs text-muted-foreground">Receber Em:</span>
-                        <input
-                          type="date"
-                          className="block w-full text-sm bg-transparent border-b border-dashed border-muted-foreground/30 focus:border-primary focus:outline-none py-0.5"
+                        <EditableDateCell
                           value={receita.data_recebimento || receita.data}
-                          onChange={async (e) => {
+                          onSave={async (val) => {
                             try {
-                              await updateTransaction.mutateAsync({ id: receita.id, data_recebimento: e.target.value });
+                              await updateTransaction.mutateAsync({ id: receita.id, data_recebimento: val || null });
                               toast.success("Data de recebimento atualizada");
                             } catch {
                               toast.error("Erro ao atualizar data");
