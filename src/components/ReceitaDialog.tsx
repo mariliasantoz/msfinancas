@@ -20,6 +20,7 @@ const responsaveis = ["Liana", "Stefany", "Marília", "Nosso ❤️"];
 export function ReceitaDialog({ open, onOpenChange, transaction, onSave, currentDate }: ReceitaDialogProps) {
   const [formData, setFormData] = useState({
     data: "",
+    data_recebimento: "",
     descricao: "",
     valor: "",
     responsavel: "",
@@ -31,6 +32,7 @@ export function ReceitaDialog({ open, onOpenChange, transaction, onSave, current
     if (transaction) {
       setFormData({
         data: transaction.data,
+        data_recebimento: transaction.data_recebimento || transaction.data,
         descricao: transaction.descricao,
         valor: transaction.valor.toString(),
         responsavel: transaction.responsavel,
@@ -44,6 +46,7 @@ export function ReceitaDialog({ open, onOpenChange, transaction, onSave, current
       
       setFormData({
         data: `${year}-${month}-${day}`,
+        data_recebimento: `${year}-${month}-${day}`,
         descricao: "",
         valor: "",
         responsavel: "",
@@ -68,6 +71,7 @@ export function ReceitaDialog({ open, onOpenChange, transaction, onSave, current
 
     const transactionData: Partial<Transaction> = {
       data: formData.data,
+      data_recebimento: formData.data_recebimento,
       descricao: formData.descricao,
       valor,
       tipo: "receita",
@@ -103,6 +107,16 @@ export function ReceitaDialog({ open, onOpenChange, transaction, onSave, current
               value={formData.data}
               onChange={(e) => setFormData({ ...formData, data: e.target.value })}
               required
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="data_recebimento">Receber Em</Label>
+            <Input
+              id="data_recebimento"
+              type="date"
+              value={formData.data_recebimento}
+              onChange={(e) => setFormData({ ...formData, data_recebimento: e.target.value })}
             />
           </div>
 

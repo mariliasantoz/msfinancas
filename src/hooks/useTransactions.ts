@@ -16,6 +16,7 @@ export interface Transaction {
   status: "Pago" | "A Pagar" | "Recebido" | "A Receber";
   mes_referencia: string;
   grupo_parcelas?: string;
+  data_recebimento?: string;
 }
 
 export function useTransactions(currentDate: Date) {
