@@ -18,11 +18,6 @@ interface FilterBarProps {
   showCartao?: boolean;
   showCategoria?: boolean;
   showStatus?: boolean;
-  dataInicial?: string;
-  onDataInicialChange?: (value: string) => void;
-  dataFinal?: string;
-  onDataFinalChange?: (value: string) => void;
-  showDateFilter?: boolean;
 }
 
 const responsaveis = ["Todos", "Liana", "Stefany", "Marília", "Nosso ❤️"];
@@ -42,11 +37,6 @@ export function FilterBar({
   showCartao = true,
   showCategoria = true,
   showStatus = true,
-  dataInicial = "",
-  onDataInicialChange,
-  dataFinal = "",
-  onDataFinalChange,
-  showDateFilter = false,
 }: FilterBarProps) {
   const { cartoes } = useCartoes();
   const { categorias } = useCategorias();
@@ -121,22 +111,6 @@ export function FilterBar({
             ))}
           </SelectContent>
         </Select>
-      )}
-      {showDateFilter && (
-        <>
-          <Input
-            type="text"
-            placeholder="Data inicial (dd/mm/aaaa)"
-            value={dataInicial}
-            onChange={(e) => onDataInicialChange?.(e.target.value)}
-          />
-          <Input
-            type="text"
-            placeholder="Data final (dd/mm/aaaa)"
-            value={dataFinal}
-            onChange={(e) => onDataFinalChange?.(e.target.value)}
-          />
-        </>
       )}
     </div>
   );

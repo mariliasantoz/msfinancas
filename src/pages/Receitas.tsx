@@ -1,7 +1,7 @@
 import { useState, useMemo, useCallback } from "react";
 import { MonthNavigator } from "@/components/MonthNavigator";
 import { useTransactions } from "@/hooks/useTransactions";
-import { formatCurrency, isoToDdMmAaaa, parseDdMmAaaa } from "@/lib/formatters";
+import { formatCurrency, formatDate } from "@/lib/formatters";
 import { useMonth } from "@/contexts/MonthContext";
 import { useView } from "@/contexts/ViewContext";
 import { Button } from "@/components/ui/button";
@@ -60,13 +60,8 @@ export default function Receitas() {
   const [cartaoFilter, setCartaoFilter] = useState("Todos");
   const [categoriaFilter, setCategoriaFilter] = useState("Todas");
   const [statusFilter, setStatusFilter] = useState("Todos");
-  const [dataInicial, setDataInicial] = useState("");
-  const [dataFinal, setDataFinal] = useState("");
 
   const receitas = useMemo(() => {
-    const diParsed = parseDdMmAaaa(dataInicial);
-    const dfParsed = parseDdMmAaaa(dataFinal);
-
     return transactions
       .filter((t) => t.tipo === "receita")
       .filter((t) => {
@@ -75,29 +70,9 @@ export default function Receitas() {
           t.valor.toString().includes(searchValue);
         const matchesResponsavel = responsavelFilter === "Todos" || t.responsavel === responsavelFilter;
         const matchesStatus = statusFilter === "Todos" || t.status === statusFilter;
-        
-        let matchesDate = true;
-        if (diParsed || dfParsed) {
-          const recDate = parseDdMmAaaa(t.data_recebimento || "");
-          if (!recDate) {
-            matchesDate = false;
-          } else {
-            if (diParsed && recDate < diParsed) matchesDate = false;
-            if (dfParsed && recDate > dfParsed) matchesDate = false;
-          }
-        }
-        
-        return matchesSearch && matchesResponsavel && matchesStatus && matchesDate;
-      })
-      .sort((a, b) => {
-        const dateA = parseDdMmAaaa(a.data_recebimento || "");
-        const dateB = parseDdMmAaaa(b.data_recebimento || "");
-        if (!dateA && !dateB) return 0;
-        if (!dateA) return 1;
-        if (!dateB) return -1;
-        return dateA.getTime() - dateB.getTime();
+        return matchesSearch && matchesResponsavel && matchesStatus;
       });
-  }, [transactions, searchValue, responsavelFilter, statusFilter, dataInicial, dataFinal]);
+  }, [transactions, searchValue, responsavelFilter, statusFilter]);
 
   const totalReceitas = receitas.reduce((sum, r) => sum + Number(r.valor), 0);
   const totalRecebidas = receitas
@@ -194,11 +169,6 @@ export default function Receitas() {
             onStatusChange={setStatusFilter}
             showCartao={false}
             showCategoria={false}
-            showDateFilter={true}
-            dataInicial={dataInicial}
-            onDataInicialChange={setDataInicial}
-            dataFinal={dataFinal}
-            onDataFinalChange={setDataFinal}
           />
 
           {receitas.length > 0 ? (
@@ -217,17 +187,20 @@ export default function Receitas() {
                 {receitas.map((receita) => (
                   <TableRow key={receita.id}>
                     <TableCell>
-                      <EditableDateCell
-                        value={isoToDdMmAaaa(receita.data_recebimento)}
-                        onSave={async (val) => {
-                          try {
-                            await updateTransaction.mutateAsync({ id: receita.id, data_recebimento: val || null });
-                            toast.success("Data atualizada");
-                          } catch {
-                            toast.error("Erro ao atualizar data");
-                          }
-                        }}
-                      />
+                      <div>
+                        <span className="text-xs text-muted-foreground">Receber Em:</span>
+                        <EditableDateCell
+                          value={receita.data_recebimento || ""}
+                          onSave={async (val) => {
+                            try {
+                              await updateTransaction.mutateAsync({ id: receita.id, data_recebimento: val || null });
+                              toast.success("Data de recebimento atualizada");
+                            } catch {
+                              toast.error("Erro ao atualizar data");
+                            }
+                          }}
+                        />
+                      </div>
                     </TableCell>
                     <TableCell className="font-medium">
                       {receita.descricao}
