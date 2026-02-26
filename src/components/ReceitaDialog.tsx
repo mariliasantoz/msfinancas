@@ -46,7 +46,7 @@ export function ReceitaDialog({ open, onOpenChange, transaction, onSave, current
       
       setFormData({
         data: `${year}-${month}-${day}`,
-        data_recebimento: `${year}-${month}-${day}`,
+        data_recebimento: "",
         descricao: "",
         valor: "",
         responsavel: "",
@@ -114,7 +114,8 @@ export function ReceitaDialog({ open, onOpenChange, transaction, onSave, current
             <Label htmlFor="data_recebimento">Receber Em</Label>
             <Input
               id="data_recebimento"
-              type="date"
+              type="text"
+              placeholder="dd/mm/aaaa"
               value={formData.data_recebimento}
               onChange={(e) => setFormData({ ...formData, data_recebimento: e.target.value })}
             />
