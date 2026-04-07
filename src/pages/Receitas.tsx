@@ -65,9 +65,13 @@ export default function Receitas() {
     return transactions
       .filter((t) => t.tipo === "receita")
       .filter((t) => {
+        const normalizedSearch = searchValue.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+        const normalizedDesc = t.descricao.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+        const normalizedData = (t.data_recebimento || "").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
         const matchesSearch = searchValue === "" || 
-          t.descricao.toLowerCase().includes(searchValue.toLowerCase()) ||
-          t.valor.toString().includes(searchValue);
+          normalizedDesc.includes(normalizedSearch) ||
+          t.valor.toString().includes(searchValue) ||
+          normalizedData.includes(normalizedSearch);
         const matchesResponsavel = responsavelFilter === "Todos" || t.responsavel === responsavelFilter;
         const matchesStatus = statusFilter === "Todos" || t.status === statusFilter;
         return matchesSearch && matchesResponsavel && matchesStatus;
