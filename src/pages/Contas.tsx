@@ -1,7 +1,7 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useCallback } from "react";
 import { MonthNavigator } from "@/components/MonthNavigator";
 import { useTransactions } from "@/hooks/useTransactions";
-import { formatCurrency, formatDate } from "@/lib/formatters";
+import { formatCurrency } from "@/lib/formatters";
 import { useMonth } from "@/contexts/MonthContext";
 import { useView } from "@/contexts/ViewContext";
 import { Button } from "@/components/ui/button";
@@ -14,6 +14,37 @@ import { TransactionDialog } from "@/components/TransactionDialog";
 import { FilterBar } from "@/components/FilterBar";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { toast } from "sonner";
+
+function EditableDateCell({ value, onSave }: { value: string; onSave: (val: string) => void }) {
+  const [localValue, setLocalValue] = useState(value);
+  const [editing, setEditing] = useState(false);
+
+  const handleBlur = useCallback(() => {
+    setEditing(false);
+    if (localValue !== value) {
+      onSave(localValue);
+    }
+  }, [localValue, value, onSave]);
+
+  const handleKeyDown = useCallback((e: React.KeyboardEvent) => {
+    if (e.key === "Enter") {
+      (e.target as HTMLInputElement).blur();
+    }
+  }, []);
+
+  return (
+    <input
+      type="text"
+      className="block w-24 text-sm bg-transparent border-b border-dashed border-muted-foreground/30 focus:border-primary focus:outline-none py-0.5"
+      placeholder="dd/mm/aaaa"
+      value={editing ? localValue : value}
+      onFocus={() => { setLocalValue(value); setEditing(true); }}
+      onChange={(e) => setLocalValue(e.target.value)}
+      onBlur={handleBlur}
+      onKeyDown={handleKeyDown}
+    />
+  );
+}
 
 export default function Contas() {
   const { currentDate, setCurrentDate } = useMonth();
@@ -36,9 +67,13 @@ export default function Contas() {
     return transactions
       .filter((t) => t.tipo === "conta")
       .filter((t) => {
+        const normalizedSearch = searchValue.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+        const normalizedDesc = t.descricao.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+        const normalizedData = (t.data_recebimento || "").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
         const matchesSearch = searchValue === "" || 
-          t.descricao.toLowerCase().includes(searchValue.toLowerCase()) ||
-          t.valor.toString().includes(searchValue);
+          normalizedDesc.includes(normalizedSearch) ||
+          t.valor.toString().includes(searchValue) ||
+          normalizedData.includes(normalizedSearch);
         const matchesResponsavel = responsavelFilter === "Todos" || t.responsavel === responsavelFilter;
         const matchesCategoria = categoriaFilter === "Todas" || t.categoria === categoriaFilter;
         const matchesStatus = statusFilter === "Todos" || t.status === statusFilter;
@@ -50,9 +85,13 @@ export default function Contas() {
     return transactions
       .filter((t) => t.tipo === "despesa")
       .filter((t) => {
+        const normalizedSearch = searchValue.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+        const normalizedDesc = t.descricao.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+        const normalizedData = (t.data_recebimento || "").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
         const matchesSearch = searchValue === "" || 
-          t.descricao.toLowerCase().includes(searchValue.toLowerCase()) ||
-          t.valor.toString().includes(searchValue);
+          normalizedDesc.includes(normalizedSearch) ||
+          t.valor.toString().includes(searchValue) ||
+          normalizedData.includes(normalizedSearch);
         const matchesResponsavel = responsavelFilter === "Todos" || t.responsavel === responsavelFilter;
         const matchesCategoria = categoriaFilter === "Todas" || t.categoria === categoriaFilter;
         const matchesStatus = statusFilter === "Todos" || t.status === statusFilter;
@@ -130,7 +169,7 @@ export default function Contas() {
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Data</TableHead>
+              <TableHead className="w-[120px]">Data</TableHead>
               <TableHead>Descrição</TableHead>
               <TableHead>Categoria</TableHead>
               <TableHead>Responsável</TableHead>
@@ -142,7 +181,22 @@ export default function Contas() {
           <TableBody>
             {contas.map((conta) => (
               <TableRow key={conta.id}>
-                <TableCell>{formatDate(conta.data)}</TableCell>
+                <TableCell>
+                  <div>
+                    <span className="text-xs text-muted-foreground">Pagar Em:</span>
+                    <EditableDateCell
+                      value={conta.data_recebimento || ""}
+                      onSave={async (val) => {
+                        try {
+                          await updateTransaction.mutateAsync({ id: conta.id, data_recebimento: val || null });
+                          toast.success("Data atualizada");
+                        } catch {
+                          toast.error("Erro ao atualizar data");
+                        }
+                      }}
+                    />
+                  </div>
+                </TableCell>
                 <TableCell className="font-medium">{conta.descricao}</TableCell>
                 <TableCell>{conta.categoria}</TableCell>
                 <TableCell>{conta.responsavel}</TableCell>
