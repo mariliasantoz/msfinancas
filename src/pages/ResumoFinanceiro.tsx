@@ -62,7 +62,12 @@ export default function ResumoFinanceiro() {
     .slice(0, 5);
 
   const meses = [...new Set(transacoes.map((t: any) => t.mes_referencia))] as string[];
-  meses.sort((a, b) => b.localeCompare(a));
+  meses.sort((a, b) => {
+    const [mesA, anoA] = a.split("/");
+    const [mesB, anoB] = b.split("/");
+    if (anoA !== anoB) return Number(anoB) - Number(anoA);
+    return Number(mesB) - Number(mesA);
+  });
 
   return (
     <div className="p-6 space-y-6">
