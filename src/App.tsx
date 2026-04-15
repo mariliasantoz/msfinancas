@@ -13,6 +13,7 @@ import Contas from "./pages/Contas";
 import Compras from "./pages/ComprasAgrupadas";
 import Relatorios from "./pages/Relatorios";
 import Configuracoes from "./pages/Configuracoes";
+import ResumoFinanceiro from "./pages/ResumoFinanceiro";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
