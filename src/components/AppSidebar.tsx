@@ -1,4 +1,4 @@
-import { Home, TrendingUp, CreditCard, ShoppingCart, BarChart3, Settings, Eye, EyeOff, FileText } from "lucide-react";
+import { Home, TrendingUp, CreditCard, ShoppingCart, BarChart3, Settings, Eye, EyeOff } from "lucide-react";
 import { useView } from "@/contexts/ViewContext";
 import { Button } from "@/components/ui/button";
 import { NavLink } from "@/components/NavLink";
@@ -21,7 +21,7 @@ const menuItems = [
   { title: "Contas Fixas", url: "/contas-fixas", icon: CreditCard },
   { title: "Compras / Cartões", url: "/compras", icon: ShoppingCart },
   { title: "Relatórios", url: "/relatorios", icon: BarChart3 },
-  { title: "Resumo Financeiro", url: "/resumo-financeiro", icon: FileText },
+  
   { title: "Configurações", url: "/configuracoes", icon: Settings },
 ];
 
