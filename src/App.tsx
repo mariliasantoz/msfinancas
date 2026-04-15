@@ -13,7 +13,7 @@ import Contas from "./pages/Contas";
 import Compras from "./pages/ComprasAgrupadas";
 import Relatorios from "./pages/Relatorios";
 import Configuracoes from "./pages/Configuracoes";
-import ResumoFinanceiro from "./pages/ResumoFinanceiro";
+
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -43,7 +43,7 @@ const App = () => (
                   <Route path="/compras" element={<Compras />} />
                   <Route path="/relatorios" element={<Relatorios />} />
                   <Route path="/configuracoes" element={<Configuracoes />} />
-                  <Route path="/resumo-financeiro" element={<ResumoFinanceiro />} />
+                  
                   <Route path="*" element={<NotFound />} />
                 </Routes>
               </main>
