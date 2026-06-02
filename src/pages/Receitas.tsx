@@ -182,6 +182,7 @@ export default function Receitas() {
                   <TableHead className="w-[120px]">Data</TableHead>
                   <TableHead>Descrição</TableHead>
                   <TableHead>Responsável</TableHead>
+                  <TableHead>Categoria</TableHead>
                   <TableHead className="text-right">Valor</TableHead>
                   <TableHead>Status</TableHead>
                   <TableHead className="text-right">Ações</TableHead>
