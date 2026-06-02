@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Transaction } from "@/hooks/useTransactions";
+import { useCategoriasReceita } from "@/hooks/useCategoriasReceita";
 import { getMonthReference } from "@/lib/formatters";
 
 interface ReceitaDialogProps {
