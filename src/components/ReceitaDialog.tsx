@@ -174,6 +174,26 @@ export function ReceitaDialog({ open, onOpenChange, transaction, onSave, current
           </div>
 
           <div className="space-y-2">
+            <Label htmlFor="categoria">Categoria</Label>
+            <Select
+              value={formData.categoria}
+              onValueChange={(value) => setFormData({ ...formData, categoria: value })}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Selecione a categoria" />
+              </SelectTrigger>
+              <SelectContent>
+                {categoriasReceita.map((cat) => (
+                  <SelectItem key={cat.id} value={cat.nome}>
+                    {cat.nome}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+
+          <div className="space-y-2">
             <Label htmlFor="status">Status</Label>
             <Select
               value={formData.status}
