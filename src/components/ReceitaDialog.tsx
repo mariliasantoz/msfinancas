@@ -19,12 +19,14 @@ interface ReceitaDialogProps {
 const responsaveis = ["Liana", "Stefany", "Marília", "Nosso ❤️"];
 
 export function ReceitaDialog({ open, onOpenChange, transaction, onSave, currentDate }: ReceitaDialogProps) {
+  const { categoriasReceita } = useCategoriasReceita();
   const [formData, setFormData] = useState({
     data: "",
     data_recebimento: "",
     descricao: "",
     valor: "",
     responsavel: "",
+    categoria: "",
     status: "A Receber",
     parcelas: "1",
   });
