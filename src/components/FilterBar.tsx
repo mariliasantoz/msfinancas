@@ -3,6 +3,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Search } from "lucide-react";
 import { useCartoes } from "@/hooks/useCartoes";
 import { useCategorias } from "@/hooks/useCategorias";
+import { useCategoriasReceita } from "@/hooks/useCategoriasReceita";
 
 interface FilterBarProps {
   searchValue: string;
@@ -15,8 +16,11 @@ interface FilterBarProps {
   onCategoriaChange: (value: string) => void;
   statusFilter: string;
   onStatusChange: (value: string) => void;
+  categoriaReceitaFilter?: string;
+  onCategoriaReceitaChange?: (value: string) => void;
   showCartao?: boolean;
   showCategoria?: boolean;
+  showCategoriaReceita?: boolean;
   showStatus?: boolean;
 }
 
@@ -34,14 +38,19 @@ export function FilterBar({
   onCategoriaChange,
   statusFilter,
   onStatusChange,
+  categoriaReceitaFilter,
+  onCategoriaReceitaChange,
   showCartao = true,
   showCategoria = true,
+  showCategoriaReceita = false,
   showStatus = true,
 }: FilterBarProps) {
   const { cartoes } = useCartoes();
   const { categorias } = useCategorias();
+  const { categoriasReceita } = useCategoriasReceita();
   const cartoesOptions = ["Todos", ...cartoes.map(c => c.nome)];
   const categoriasOptions = ["Todas", ...categorias.map(c => c.nome)];
+  const categoriasReceitaOptions = ["Todas", ...categoriasReceita.map(c => c.nome)];
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 mb-6">
