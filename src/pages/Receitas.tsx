@@ -211,6 +211,13 @@ export default function Receitas() {
                       {receita.descricao}
                     </TableCell>
                     <TableCell>{receita.responsavel}</TableCell>
+                    <TableCell>
+                      {receita.categoria && receita.categoria !== "Receita" ? (
+                        <Badge variant="secondary">{receita.categoria}</Badge>
+                      ) : (
+                        <span className="text-muted-foreground">—</span>
+                      )}
+                    </TableCell>
                     <TableCell className="text-right font-bold text-liana-foreground">
                       {formatCurrency(Number(receita.valor), showValues)}
                     </TableCell>
