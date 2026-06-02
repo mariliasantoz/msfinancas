@@ -70,6 +70,11 @@ export function ReceitaDialog({ open, onOpenChange, transaction, onSave, current
       return;
     }
 
+    if (!formData.categoria) {
+      alert("Por favor, selecione uma categoria");
+      return;
+    }
+
     const mes = new Date(formData.data);
     const mesReferencia = getMonthReference(mes);
     const parcelas = parseInt(formData.parcelas) || 1;
@@ -80,7 +85,7 @@ export function ReceitaDialog({ open, onOpenChange, transaction, onSave, current
       descricao: formData.descricao,
       valor,
       tipo: "receita",
-      categoria: "Receita",
+      categoria: formData.categoria,
       responsavel: formData.responsavel as Transaction["responsavel"],
       status: formData.status as Transaction["status"],
       mes_referencia: mesReferencia,
