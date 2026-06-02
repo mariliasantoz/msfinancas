@@ -59,6 +59,7 @@ export default function Receitas() {
   const [responsavelFilter, setResponsavelFilter] = useState("Todos");
   const [cartaoFilter, setCartaoFilter] = useState("Todos");
   const [categoriaFilter, setCategoriaFilter] = useState("Todas");
+  const [categoriaReceitaFilter, setCategoriaReceitaFilter] = useState("Todas");
   const [statusFilter, setStatusFilter] = useState("Todos");
 
   const receitas = useMemo(() => {
@@ -73,10 +74,11 @@ export default function Receitas() {
           t.valor.toString().includes(searchValue) ||
           normalizedData.includes(normalizedSearch);
         const matchesResponsavel = responsavelFilter === "Todos" || t.responsavel === responsavelFilter;
+        const matchesCategoriaReceita = categoriaReceitaFilter === "Todas" || t.categoria === categoriaReceitaFilter;
         const matchesStatus = statusFilter === "Todos" || t.status === statusFilter;
-        return matchesSearch && matchesResponsavel && matchesStatus;
+        return matchesSearch && matchesResponsavel && matchesCategoriaReceita && matchesStatus;
       });
-  }, [transactions, searchValue, responsavelFilter, statusFilter]);
+  }, [transactions, searchValue, responsavelFilter, categoriaReceitaFilter, statusFilter]);
 
   const totalReceitas = receitas.reduce((sum, r) => sum + Number(r.valor), 0);
   const totalRecebidas = receitas
@@ -166,13 +168,16 @@ export default function Receitas() {
             cartaoFilter={cartaoFilter}
             categoriaFilter={categoriaFilter}
             statusFilter={statusFilter}
+            categoriaReceitaFilter={categoriaReceitaFilter}
             onSearchChange={setSearchValue}
             onResponsavelChange={setResponsavelFilter}
             onCartaoChange={setCartaoFilter}
             onCategoriaChange={setCategoriaFilter}
             onStatusChange={setStatusFilter}
+            onCategoriaReceitaChange={setCategoriaReceitaFilter}
             showCartao={false}
             showCategoria={false}
+            showCategoriaReceita={true}
           />
 
           {receitas.length > 0 ? (
