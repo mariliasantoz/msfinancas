@@ -39,6 +39,7 @@ export function ReceitaDialog({ open, onOpenChange, transaction, onSave, current
         descricao: transaction.descricao,
         valor: transaction.valor.toString(),
         responsavel: transaction.responsavel,
+        categoria: transaction.categoria || "",
         status: transaction.status,
         parcelas: transaction.parcelas?.toString() || "1",
       });
@@ -53,6 +54,7 @@ export function ReceitaDialog({ open, onOpenChange, transaction, onSave, current
         descricao: "",
         valor: "",
         responsavel: "",
+        categoria: "",
         status: "A Receber",
         parcelas: "1",
       });
