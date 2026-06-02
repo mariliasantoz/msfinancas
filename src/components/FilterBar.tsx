@@ -77,6 +77,21 @@ export function FilterBar({
         </SelectContent>
       </Select>
 
+      {showCategoriaReceita && (
+        <Select value={categoriaReceitaFilter} onValueChange={onCategoriaReceitaChange}>
+          <SelectTrigger>
+            <SelectValue placeholder="Categoria Receita" />
+          </SelectTrigger>
+          <SelectContent>
+            {categoriasReceitaOptions.map((cat) => (
+              <SelectItem key={cat} value={cat}>
+                {cat}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      )}
+
       {showCategoria && (
         <Select value={categoriaFilter} onValueChange={onCategoriaChange}>
           <SelectTrigger>
