@@ -182,6 +182,7 @@ export default function Receitas() {
                   <TableHead className="w-[120px]">Data</TableHead>
                   <TableHead>Descrição</TableHead>
                   <TableHead>Responsável</TableHead>
+                  <TableHead>Categoria</TableHead>
                   <TableHead className="text-right">Valor</TableHead>
                   <TableHead>Status</TableHead>
                   <TableHead className="text-right">Ações</TableHead>
@@ -210,6 +211,13 @@ export default function Receitas() {
                       {receita.descricao}
                     </TableCell>
                     <TableCell>{receita.responsavel}</TableCell>
+                    <TableCell>
+                      {receita.categoria && receita.categoria !== "Receita" ? (
+                        <Badge variant="secondary">{receita.categoria}</Badge>
+                      ) : (
+                        <span className="text-muted-foreground">—</span>
+                      )}
+                    </TableCell>
                     <TableCell className="text-right font-bold text-liana-foreground">
                       {formatCurrency(Number(receita.valor), showValues)}
                     </TableCell>

@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Transaction } from "@/hooks/useTransactions";
+import { useCategoriasReceita } from "@/hooks/useCategoriasReceita";
 import { getMonthReference } from "@/lib/formatters";
 
 interface ReceitaDialogProps {
@@ -18,12 +19,14 @@ interface ReceitaDialogProps {
 const responsaveis = ["Liana", "Stefany", "Marília", "Nosso ❤️"];
 
 export function ReceitaDialog({ open, onOpenChange, transaction, onSave, currentDate }: ReceitaDialogProps) {
+  const { categoriasReceita } = useCategoriasReceita();
   const [formData, setFormData] = useState({
     data: "",
     data_recebimento: "",
     descricao: "",
     valor: "",
     responsavel: "",
+    categoria: "",
     status: "A Receber",
     parcelas: "1",
   });
@@ -36,6 +39,7 @@ export function ReceitaDialog({ open, onOpenChange, transaction, onSave, current
         descricao: transaction.descricao,
         valor: transaction.valor.toString(),
         responsavel: transaction.responsavel,
+        categoria: transaction.categoria || "",
         status: transaction.status,
         parcelas: transaction.parcelas?.toString() || "1",
       });
@@ -50,6 +54,7 @@ export function ReceitaDialog({ open, onOpenChange, transaction, onSave, current
         descricao: "",
         valor: "",
         responsavel: "",
+        categoria: "",
         status: "A Receber",
         parcelas: "1",
       });
@@ -65,6 +70,11 @@ export function ReceitaDialog({ open, onOpenChange, transaction, onSave, current
       return;
     }
 
+    if (!formData.categoria) {
+      alert("Por favor, selecione uma categoria");
+      return;
+    }
+
     const mes = new Date(formData.data);
     const mesReferencia = getMonthReference(mes);
     const parcelas = parseInt(formData.parcelas) || 1;
@@ -75,7 +85,7 @@ export function ReceitaDialog({ open, onOpenChange, transaction, onSave, current
       descricao: formData.descricao,
       valor,
       tipo: "receita",
-      categoria: "Receita",
+      categoria: formData.categoria,
       responsavel: formData.responsavel as Transaction["responsavel"],
       status: formData.status as Transaction["status"],
       mes_referencia: mesReferencia,
@@ -162,6 +172,26 @@ export function ReceitaDialog({ open, onOpenChange, transaction, onSave, current
               </SelectContent>
             </Select>
           </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="categoria">Categoria</Label>
+            <Select
+              value={formData.categoria}
+              onValueChange={(value) => setFormData({ ...formData, categoria: value })}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Selecione a categoria" />
+              </SelectTrigger>
+              <SelectContent>
+                {categoriasReceita.map((cat) => (
+                  <SelectItem key={cat.id} value={cat.nome}>
+                    {cat.nome}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
 
           <div className="space-y-2">
             <Label htmlFor="status">Status</Label>
