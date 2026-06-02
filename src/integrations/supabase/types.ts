@@ -53,6 +53,24 @@ export type Database = {
         }
         Relationships: []
       }
+      categorias_receita: {
+        Row: {
+          criado_em: string
+          id: string
+          nome: string
+        }
+        Insert: {
+          criado_em?: string
+          id?: string
+          nome: string
+        }
+        Update: {
+          criado_em?: string
+          id?: string
+          nome?: string
+        }
+        Relationships: []
+      }
       configuracoes: {
         Row: {
           created_at: string
