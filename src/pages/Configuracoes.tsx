@@ -214,6 +214,51 @@ export default function Configuracoes() {
             )}
           </CardContent>
         </Card>
+
+        <Card className="shadow-lg">
+          <CardHeader>
+            <CardTitle>Categorias de Receitas</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="flex gap-2">
+              <Input
+                placeholder="Nome da nova categoria de receita"
+                value={novaCategoriaReceita}
+                onChange={(e) => setNovaCategoriaReceita(e.target.value)}
+                onKeyDown={(e) => e.key === "Enter" && handleAddCategoriaReceita()}
+              />
+              <Button onClick={handleAddCategoriaReceita} disabled={addCategoriaReceita.isPending}>
+                <Plus className="h-4 w-4 mr-2" />
+                Adicionar
+              </Button>
+            </div>
+
+            <ul className="space-y-2">
+              {categoriasReceita.map((categoria) => (
+                <li key={categoria.id} className="flex items-center justify-between gap-2 p-2 rounded-lg bg-muted/50">
+                  <div className="flex items-center gap-2">
+                    <span className="text-2xl">💰</span>
+                    <span>{categoria.nome}</span>
+                  </div>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => handleDeleteClick(categoria.id, "categoria_receita")}
+                    disabled={deleteCategoriaReceita.isPending}
+                  >
+                    <Trash2 className="h-4 w-4 text-destructive" />
+                  </Button>
+                </li>
+              ))}
+            </ul>
+
+            {categoriasReceita.length === 0 && (
+              <p className="text-sm text-muted-foreground text-center py-4">
+                Nenhuma categoria de receita cadastrada
+              </p>
+            )}
+          </CardContent>
+        </Card>
       </div>
 
       <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
