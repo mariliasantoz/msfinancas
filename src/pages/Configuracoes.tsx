@@ -102,12 +102,18 @@ export default function Configuracoes() {
       if (deleteType === "cartao") {
         await deleteCartao.mutateAsync(deletingId);
         toast.success("Cartão excluído com sucesso!");
-      } else {
+      } else if (deleteType === "categoria") {
         await deleteCategoria.mutateAsync(deletingId);
         toast.success("Categoria excluída com sucesso!");
+      } else {
+        await deleteCategoriaReceita.mutateAsync(deletingId);
+        toast.success("Categoria de receita excluída com sucesso!");
       }
     } catch (error) {
-      toast.error(`Erro ao excluir ${deleteType === "cartao" ? "cartão" : "categoria"}`);
+      const typeLabel =
+        deleteType === "cartao" ? "cartão" :
+        deleteType === "categoria" ? "categoria" : "categoria de receita";
+      toast.error(`Erro ao excluir ${typeLabel}`);
     } finally {
       setDeleteDialogOpen(false);
       setDeletingId(null);
