@@ -3,6 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useTransactions } from "@/hooks/useTransactions";
 import { useCartoes } from "@/hooks/useCartoes";
 import { useCategorias } from "@/hooks/useCategorias";
+import { useCategoriasReceita } from "@/hooks/useCategoriasReceita";
 import { formatCurrency } from "@/lib/formatters";
 import { useMonth } from "@/contexts/MonthContext";
 import { useView } from "@/contexts/ViewContext";
@@ -13,8 +14,10 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { ChevronRight } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { ChevronRight, Download } from "lucide-react";
 import { format } from "date-fns";
+
 
 export default function Relatorios() {
   const { currentDate, setCurrentDate } = useMonth();
