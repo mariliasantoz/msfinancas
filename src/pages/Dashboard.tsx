@@ -17,6 +17,17 @@ export default function Dashboard() {
   const { transactions, isLoading } = useTransactions(currentDate);
   const { showValues } = useView();
   const { cartoes } = useCartoes();
+  const { categoriasReceita } = useCategoriasReceita();
+
+  const receitasPorCategoria = useMemo(() => {
+    const receitas = transactions.filter((t) => t.tipo === "receita");
+    return categoriasReceita.map((cat) => ({
+      name: cat.nome,
+      value: receitas
+        .filter((t) => t.categoria === cat.nome)
+        .reduce((sum, t) => sum + Number(t.valor), 0),
+    }));
+  }, [transactions, categoriasReceita]);
 
   const stats = useMemo(() => {
     const receitas = transactions
