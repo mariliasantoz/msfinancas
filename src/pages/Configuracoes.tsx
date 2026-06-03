@@ -3,6 +3,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useCartoes } from "@/hooks/useCartoes";
 import { useCategorias } from "@/hooks/useCategorias";
+import { useCategoriasReceita } from "@/hooks/useCategoriasReceita";
 import { useState } from "react";
 import { toast } from "sonner";
 import { Trash2, Plus } from "lucide-react";
@@ -20,11 +21,13 @@ import {
 export default function Configuracoes() {
   const { cartoes, addCartao, deleteCartao } = useCartoes();
   const { categorias, addCategoria, deleteCategoria } = useCategorias();
+  const { categoriasReceita, addCategoriaReceita, deleteCategoriaReceita } = useCategoriasReceita();
   const [novoCartao, setNovoCartao] = useState("");
   const [novaCategoria, setNovaCategoria] = useState("");
+  const [novaCategoriaReceita, setNovaCategoriaReceita] = useState("");
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [deletingId, setDeletingId] = useState<string | null>(null);
-  const [deleteType, setDeleteType] = useState<"cartao" | "categoria">("cartao");
+  const [deleteType, setDeleteType] = useState<"cartao" | "categoria" | "categoria_receita">("cartao");
 
   const handleAddCartao = async () => {
     if (!novoCartao.trim()) {
