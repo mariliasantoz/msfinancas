@@ -165,10 +165,12 @@ export default function Relatorios() {
       </div>
 
       <Tabs defaultValue="categorias" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-2">
+        <TabsList className="grid w-full grid-cols-3">
           <TabsTrigger value="categorias">Por Categoria</TabsTrigger>
           <TabsTrigger value="cartoes">Por Cartão</TabsTrigger>
+          <TabsTrigger value="receitas">Por Receita</TabsTrigger>
         </TabsList>
+
 
         <TabsContent value="categorias" className="space-y-6">
           <Card className="shadow-lg">
