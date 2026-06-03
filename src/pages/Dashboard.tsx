@@ -8,6 +8,7 @@ import { useMonth } from "@/contexts/MonthContext";
 import { useView } from "@/contexts/ViewContext";
 import { TrendingUp, TrendingDown, Wallet, Clock } from "lucide-react";
 import { useCartoes } from "@/hooks/useCartoes";
+import { useCategoriasReceita } from "@/hooks/useCategoriasReceita";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { PieChart, Pie, Cell, ResponsiveContainer, Legend, BarChart, Bar, XAxis, YAxis, Tooltip } from "recharts";
 
@@ -16,6 +17,17 @@ export default function Dashboard() {
   const { transactions, isLoading } = useTransactions(currentDate);
   const { showValues } = useView();
   const { cartoes } = useCartoes();
+  const { categoriasReceita } = useCategoriasReceita();
+
+  const receitasPorCategoria = useMemo(() => {
+    const receitas = transactions.filter((t) => t.tipo === "receita");
+    return categoriasReceita.map((cat) => ({
+      name: cat.nome,
+      value: receitas
+        .filter((t) => t.categoria === cat.nome)
+        .reduce((sum, t) => sum + Number(t.valor), 0),
+    }));
+  }, [transactions, categoriasReceita]);
 
   const stats = useMemo(() => {
     const receitas = transactions
@@ -124,6 +136,31 @@ export default function Dashboard() {
       </div>
 
       <PaymentProgressCard transactions={transactions} showValues={showValues} />
+
+      <Card className="shadow-lg border-2 border-liana/20">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <TrendingUp className="h-5 w-5 text-liana-foreground" />
+            Receitas por Categoria
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+            {receitasPorCategoria.map((cat) => (
+              <div key={cat.name} className="p-4 rounded-lg bg-liana/10 border border-liana/20">
+                <p className="text-sm font-medium text-muted-foreground truncate" title={cat.name}>
+                  Total de {cat.name}
+                </p>
+                <p className="text-xl font-bold text-liana-foreground mt-1">
+                  {formatCurrency(cat.value, showValues)}
+                </p>
+              </div>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
+
+
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <Card className="shadow-lg">
