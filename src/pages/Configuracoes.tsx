@@ -266,7 +266,13 @@ export default function Configuracoes() {
           <AlertDialogHeader>
             <AlertDialogTitle>Confirmar Exclusão</AlertDialogTitle>
             <AlertDialogDescription>
-              Tem certeza que deseja excluir {deleteType === "cartao" ? "este cartão" : "esta categoria"}? Esta ação não pode ser desfeita.
+              Tem certeza que deseja excluir{" "}
+              {deleteType === "cartao"
+                ? "este cartão"
+                : deleteType === "categoria"
+                ? "esta categoria"
+                : "esta categoria de receita"}
+              ? Esta ação não pode ser desfeita.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
