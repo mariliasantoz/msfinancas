@@ -354,7 +354,106 @@ export default function Relatorios() {
             </CardContent>
           </Card>
         </TabsContent>
+
+        <TabsContent value="receitas" className="space-y-6">
+          <Card className="shadow-lg">
+            <CardHeader>
+              <div className="flex items-center justify-between gap-4 flex-wrap">
+                <CardTitle>Receitas por Categoria</CardTitle>
+                <div className="flex items-center gap-2">
+                  <Select value={categoriaReceitaFilter} onValueChange={setCategoriaReceitaFilter}>
+                    <SelectTrigger className="w-48">
+                      <SelectValue placeholder="Filtrar por categoria" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {categoriasReceitaOptions.map((cat) => (
+                        <SelectItem key={cat} value={cat}>
+                          {cat}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <Button variant="outline" className="gap-2" onClick={handleExportCSV}>
+                    <Download className="h-4 w-4" />
+                    Exportar CSV
+                  </Button>
+                </div>
+              </div>
+            </CardHeader>
+            <CardContent>
+              {receitasPorCategoria.some((c) => c.value > 0) ? (
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                  <ResponsiveContainer width="100%" height={300}>
+                    <PieChart>
+                      <Pie
+                        data={receitasPorCategoria.filter((c) => c.value > 0)}
+                        cx="50%"
+                        cy="50%"
+                        labelLine={false}
+                        label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+                        outerRadius={100}
+                        fill="#8884d8"
+                        dataKey="value"
+                      >
+                        {receitasPorCategoria.filter((c) => c.value > 0).map((entry, index) => (
+                          <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                        ))}
+                      </Pie>
+                      <Tooltip formatter={(value) => formatCurrency(Number(value), showValues)} />
+                      <Legend />
+                    </PieChart>
+                  </ResponsiveContainer>
+                  <ResponsiveContainer width="100%" height={300}>
+                    <BarChart data={receitasPorCategoria.filter((c) => c.value > 0)} layout="vertical">
+                      <XAxis type="number" tickFormatter={(value) => formatCurrency(value, showValues)} />
+                      <YAxis type="category" dataKey="name" width={100} />
+                      <Tooltip formatter={(value) => formatCurrency(Number(value), showValues)} />
+                      <Bar dataKey="value" radius={[0, 8, 8, 0]}>
+                        {receitasPorCategoria.filter((c) => c.value > 0).map((entry, index) => (
+                          <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                        ))}
+                      </Bar>
+                    </BarChart>
+                  </ResponsiveContainer>
+                </div>
+              ) : (
+                <p className="text-center text-muted-foreground py-12">Nenhuma receita registrada</p>
+              )}
+            </CardContent>
+          </Card>
+
+          <Card className="shadow-lg">
+            <CardHeader>
+              <CardTitle>Resumo por Categoria de Receita</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-3">
+                {receitasPorCategoria.map((cat, index) => (
+                  <div key={cat.name} className="flex items-center justify-between p-3 rounded-lg bg-muted/50">
+                    <div className="flex items-center gap-3">
+                      <div
+                        className="w-4 h-4 rounded-full"
+                        style={{ backgroundColor: COLORS[index % COLORS.length] }}
+                      />
+                      <span className="font-medium">{cat.name}</span>
+                    </div>
+                    <span className="font-bold text-liana-foreground">{formatCurrency(cat.value, showValues)}</span>
+                  </div>
+                ))}
+              </div>
+              <div className="flex justify-between items-center pt-4 mt-3 border-t">
+                <span className="font-medium">
+                  Total {categoriaReceitaFilter !== "Todas" ? `(${categoriaReceitaFilter})` : ""}
+                </span>
+                <span className="text-lg font-bold text-liana-foreground">
+                  {formatCurrency(totalReceitasFiltradas, showValues)}
+                </span>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
       </Tabs>
+
 
       {/* Modal de detalhes da categoria */}
       <Dialog open={isDetailModalOpen} onOpenChange={setIsDetailModalOpen}>
