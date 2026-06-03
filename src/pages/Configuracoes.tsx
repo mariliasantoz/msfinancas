@@ -3,6 +3,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useCartoes } from "@/hooks/useCartoes";
 import { useCategorias } from "@/hooks/useCategorias";
+import { useCategoriasReceita } from "@/hooks/useCategoriasReceita";
 import { useState } from "react";
 import { toast } from "sonner";
 import { Trash2, Plus } from "lucide-react";
@@ -20,11 +21,13 @@ import {
 export default function Configuracoes() {
   const { cartoes, addCartao, deleteCartao } = useCartoes();
   const { categorias, addCategoria, deleteCategoria } = useCategorias();
+  const { categoriasReceita, addCategoriaReceita, deleteCategoriaReceita } = useCategoriasReceita();
   const [novoCartao, setNovoCartao] = useState("");
   const [novaCategoria, setNovaCategoria] = useState("");
+  const [novaCategoriaReceita, setNovaCategoriaReceita] = useState("");
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [deletingId, setDeletingId] = useState<string | null>(null);
-  const [deleteType, setDeleteType] = useState<"cartao" | "categoria">("cartao");
+  const [deleteType, setDeleteType] = useState<"cartao" | "categoria" | "categoria_receita">("cartao");
 
   const handleAddCartao = async () => {
     if (!novoCartao.trim()) {
@@ -66,7 +69,27 @@ export default function Configuracoes() {
     }
   };
 
-  const handleDeleteClick = (id: string, type: "cartao" | "categoria") => {
+  const handleAddCategoriaReceita = async () => {
+    if (!novaCategoriaReceita.trim()) {
+      toast.error("Digite o nome da categoria de receita");
+      return;
+    }
+
+    if (categoriasReceita.some(c => c.nome.toLowerCase() === novaCategoriaReceita.trim().toLowerCase())) {
+      toast.error("Esta categoria de receita já está cadastrada");
+      return;
+    }
+
+    try {
+      await addCategoriaReceita.mutateAsync(novaCategoriaReceita.trim());
+      setNovaCategoriaReceita("");
+      toast.success("Categoria de receita adicionada com sucesso!");
+    } catch (error) {
+      toast.error("Erro ao adicionar categoria de receita");
+    }
+  };
+
+  const handleDeleteClick = (id: string, type: "cartao" | "categoria" | "categoria_receita") => {
     setDeletingId(id);
     setDeleteType(type);
     setDeleteDialogOpen(true);
@@ -79,12 +102,18 @@ export default function Configuracoes() {
       if (deleteType === "cartao") {
         await deleteCartao.mutateAsync(deletingId);
         toast.success("Cartão excluído com sucesso!");
-      } else {
+      } else if (deleteType === "categoria") {
         await deleteCategoria.mutateAsync(deletingId);
         toast.success("Categoria excluída com sucesso!");
+      } else {
+        await deleteCategoriaReceita.mutateAsync(deletingId);
+        toast.success("Categoria de receita excluída com sucesso!");
       }
     } catch (error) {
-      toast.error(`Erro ao excluir ${deleteType === "cartao" ? "cartão" : "categoria"}`);
+      const typeLabel =
+        deleteType === "cartao" ? "cartão" :
+        deleteType === "categoria" ? "categoria" : "categoria de receita";
+      toast.error(`Erro ao excluir ${typeLabel}`);
     } finally {
       setDeleteDialogOpen(false);
       setDeletingId(null);
@@ -185,6 +214,51 @@ export default function Configuracoes() {
             )}
           </CardContent>
         </Card>
+
+        <Card className="shadow-lg">
+          <CardHeader>
+            <CardTitle>Categorias de Receitas</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="flex gap-2">
+              <Input
+                placeholder="Nome da nova categoria de receita"
+                value={novaCategoriaReceita}
+                onChange={(e) => setNovaCategoriaReceita(e.target.value)}
+                onKeyDown={(e) => e.key === "Enter" && handleAddCategoriaReceita()}
+              />
+              <Button onClick={handleAddCategoriaReceita} disabled={addCategoriaReceita.isPending}>
+                <Plus className="h-4 w-4 mr-2" />
+                Adicionar
+              </Button>
+            </div>
+
+            <ul className="space-y-2">
+              {categoriasReceita.map((categoria) => (
+                <li key={categoria.id} className="flex items-center justify-between gap-2 p-2 rounded-lg bg-muted/50">
+                  <div className="flex items-center gap-2">
+                    <span className="text-2xl">💰</span>
+                    <span>{categoria.nome}</span>
+                  </div>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => handleDeleteClick(categoria.id, "categoria_receita")}
+                    disabled={deleteCategoriaReceita.isPending}
+                  >
+                    <Trash2 className="h-4 w-4 text-destructive" />
+                  </Button>
+                </li>
+              ))}
+            </ul>
+
+            {categoriasReceita.length === 0 && (
+              <p className="text-sm text-muted-foreground text-center py-4">
+                Nenhuma categoria de receita cadastrada
+              </p>
+            )}
+          </CardContent>
+        </Card>
       </div>
 
       <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
@@ -192,7 +266,13 @@ export default function Configuracoes() {
           <AlertDialogHeader>
             <AlertDialogTitle>Confirmar Exclusão</AlertDialogTitle>
             <AlertDialogDescription>
-              Tem certeza que deseja excluir {deleteType === "cartao" ? "este cartão" : "esta categoria"}? Esta ação não pode ser desfeita.
+              Tem certeza que deseja excluir{" "}
+              {deleteType === "cartao"
+                ? "este cartão"
+                : deleteType === "categoria"
+                ? "esta categoria"
+                : "esta categoria de receita"}
+              ? Esta ação não pode ser desfeita.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
