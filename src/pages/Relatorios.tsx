@@ -24,12 +24,62 @@ export default function Relatorios() {
   const { transactions } = useTransactions(currentDate);
   const { cartoes } = useCartoes();
   const { categorias } = useCategorias();
+  const { categoriasReceita } = useCategoriasReceita();
   const { showValues } = useView();
 
   const [cartaoFilter, setCartaoFilter] = useState("Todos");
   const [categoriaFilter, setCategoriaFilter] = useState("Todas");
+  const [categoriaReceitaFilter, setCategoriaReceitaFilter] = useState("Todas");
   const [selectedCategoria, setSelectedCategoria] = useState<string | null>(null);
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
+
+  const receitas = useMemo(() => {
+    return transactions.filter((t) => t.tipo === "receita");
+  }, [transactions]);
+
+  const receitasFiltradas = useMemo(() => {
+    return categoriaReceitaFilter === "Todas"
+      ? receitas
+      : receitas.filter((t) => t.categoria === categoriaReceitaFilter);
+  }, [receitas, categoriaReceitaFilter]);
+
+  const receitasPorCategoria = useMemo(() => {
+    return categoriasReceita.map((cat) => ({
+      name: cat.nome,
+      value: receitas
+        .filter((t) => t.categoria === cat.nome)
+        .reduce((sum, t) => sum + Number(t.valor), 0),
+    }));
+  }, [receitas, categoriasReceita]);
+
+  const totalReceitasFiltradas = useMemo(
+    () => receitasFiltradas.reduce((sum, t) => sum + Number(t.valor), 0),
+    [receitasFiltradas]
+  );
+
+  const categoriasReceitaOptions = ["Todas", ...categoriasReceita.map((c) => c.nome)];
+
+  const handleExportCSV = () => {
+    const header = ["Data", "Descricao", "Responsavel", "categoria_receita", "Valor", "Status"];
+    const rows = receitasFiltradas.map((t) => [
+      t.data,
+      t.descricao,
+      t.responsavel,
+      t.categoria || "",
+      Number(t.valor).toFixed(2),
+      t.status,
+    ]);
+    const escape = (v: string | number) => `"${String(v).replace(/"/g, '""')}"`;
+    const csv = [header, ...rows].map((r) => r.map(escape).join(",")).join("\n");
+    const blob = new Blob(["\uFEFF" + csv], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `receitas-${format(currentDate, "yyyy-MM")}.csv`;
+    link.click();
+    URL.revokeObjectURL(url);
+  };
+
 
   const despesas = useMemo(() => {
     return transactions.filter((t) => t.tipo !== "receita");
