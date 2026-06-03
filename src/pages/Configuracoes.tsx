@@ -69,7 +69,27 @@ export default function Configuracoes() {
     }
   };
 
-  const handleDeleteClick = (id: string, type: "cartao" | "categoria") => {
+  const handleAddCategoriaReceita = async () => {
+    if (!novaCategoriaReceita.trim()) {
+      toast.error("Digite o nome da categoria de receita");
+      return;
+    }
+
+    if (categoriasReceita.some(c => c.nome.toLowerCase() === novaCategoriaReceita.trim().toLowerCase())) {
+      toast.error("Esta categoria de receita já está cadastrada");
+      return;
+    }
+
+    try {
+      await addCategoriaReceita.mutateAsync(novaCategoriaReceita.trim());
+      setNovaCategoriaReceita("");
+      toast.success("Categoria de receita adicionada com sucesso!");
+    } catch (error) {
+      toast.error("Erro ao adicionar categoria de receita");
+    }
+  };
+
+  const handleDeleteClick = (id: string, type: "cartao" | "categoria" | "categoria_receita") => {
     setDeletingId(id);
     setDeleteType(type);
     setDeleteDialogOpen(true);
