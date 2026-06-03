@@ -8,6 +8,7 @@ import { useMonth } from "@/contexts/MonthContext";
 import { useView } from "@/contexts/ViewContext";
 import { TrendingUp, TrendingDown, Wallet, Clock } from "lucide-react";
 import { useCartoes } from "@/hooks/useCartoes";
+import { useCategoriasReceita } from "@/hooks/useCategoriasReceita";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { PieChart, Pie, Cell, ResponsiveContainer, Legend, BarChart, Bar, XAxis, YAxis, Tooltip } from "recharts";
 
