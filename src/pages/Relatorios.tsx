@@ -309,7 +309,13 @@ export default function Relatorios() {
 
           <Card className="shadow-lg">
             <CardHeader>
-              <CardTitle>Resumo por Categoria</CardTitle>
+              <div className="flex items-center justify-between">
+                <CardTitle>Resumo por Categoria</CardTitle>
+                <Button variant="outline" className="gap-2" onClick={handleExportExcel}>
+                  <FileSpreadsheet className="h-4 w-4" />
+                  Exportar Excel
+                </Button>
+              </div>
             </CardHeader>
             <CardContent>
               {totalPorCategoria.length > 0 ? (
