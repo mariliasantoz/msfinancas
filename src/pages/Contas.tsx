@@ -146,6 +146,71 @@ export default function Contas() {
     setDialogOpen(true);
   };
 
+  const handleExportExcel = async () => {
+    try {
+      const workbook = new ExcelJS.Workbook();
+
+      const addSheet = (nome: string, contas: any[]) => {
+        const sheet = workbook.addWorksheet(nome);
+        sheet.columns = [
+          { header: "Data", key: "data", width: 14 },
+          { header: "Descrição", key: "descricao", width: 40 },
+          { header: "Categoria", key: "categoria", width: 22 },
+          { header: "Responsável", key: "responsavel", width: 18 },
+          { header: "Status", key: "status", width: 12 },
+          { header: "Valor", key: "valor", width: 16 },
+        ];
+
+        const headerRow = sheet.getRow(1);
+        headerRow.font = { bold: true, color: { argb: "FFFFFFFF" } };
+        headerRow.fill = { type: "pattern", pattern: "solid", fgColor: { argb: "FF1F4E79" } };
+        headerRow.height = 20;
+
+        contas.forEach((conta) => {
+          const row = sheet.addRow({
+            data: conta.data_recebimento || "-",
+            descricao: conta.descricao,
+            categoria: conta.categoria,
+            responsavel: conta.responsavel,
+            status: conta.status,
+            valor: Number(conta.valor),
+          });
+          row.getCell("valor").numFmt = '"R$" #,##0.00';
+        });
+
+        const total = contas.reduce((sum, c) => sum + Number(c.valor), 0);
+        const totalRow = sheet.addRow({ data: "TOTAL", valor: total });
+        totalRow.font = { bold: true };
+        totalRow.getCell("valor").numFmt = '"R$" #,##0.00';
+        totalRow.eachCell((cell) => {
+          cell.border = { top: { style: "thin" } };
+        });
+
+        if (contas.length > 0) {
+          sheet.autoFilter = { from: "A1", to: `F${contas.length + 1}` };
+        }
+      };
+
+      addSheet("Contas Fixas", contasFixas);
+      addSheet("Contas Variáveis", contasVariaveis);
+
+      const mesNome = capitalizeFirst(new Intl.DateTimeFormat("pt-BR", { month: "long" }).format(currentDate));
+      const fileName = `Contas_${mesNome}_${currentDate.getFullYear()}.xlsx`;
+
+      const buffer = await workbook.xlsx.writeBuffer();
+      const blob = new Blob([buffer], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = fileName;
+      link.click();
+      URL.revokeObjectURL(url);
+      toast.success("Excel exportado com sucesso!");
+    } catch (error) {
+      toast.error("Erro ao exportar Excel");
+    }
+  };
+
   if (isLoading) {
     return <div className="flex items-center justify-center h-full"><p>Carregando...</p></div>;
   }
@@ -247,7 +312,13 @@ export default function Contas() {
     <div className="space-y-6 p-6">
       <div className="flex items-center justify-between">
         <h1 className="text-3xl font-bold">Contas 📋</h1>
-        <MonthNavigator currentDate={currentDate} onDateChange={setCurrentDate} />
+        <div className="flex items-center gap-3">
+          <MonthNavigator currentDate={currentDate} onDateChange={setCurrentDate} />
+          <Button variant="outline" className="gap-2" onClick={handleExportExcel}>
+            <Download className="h-4 w-4" />
+            Exportar Excel
+          </Button>
+        </div>
       </div>
 
       <Tabs defaultValue="fixas" className="space-y-6">
