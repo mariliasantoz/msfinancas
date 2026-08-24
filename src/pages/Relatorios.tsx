@@ -15,8 +15,10 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { ChevronRight, Download } from "lucide-react";
+import { ChevronRight, Download, FileSpreadsheet } from "lucide-react";
 import { format } from "date-fns";
+import { ptBR } from "date-fns/locale";
+import ExcelJS from "exceljs";
 
 
 export default function Relatorios() {
