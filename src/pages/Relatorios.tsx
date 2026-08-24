@@ -82,6 +82,78 @@ export default function Relatorios() {
     URL.revokeObjectURL(url);
   };
 
+  const handleExportExcel = async () => {
+    const workbook = new ExcelJS.Workbook();
+    const periodo = format(currentDate, "MMMM 'de' yyyy", { locale: ptBR });
+
+    totalPorCategoria.forEach((cat) => {
+      const rows = despesas
+        .filter((t) => t.categoria === cat.name)
+        .sort((a, b) => new Date(b.data).getTime() - new Date(a.data).getTime());
+      if (rows.length === 0) return;
+
+      const sheetName = cat.name.replace(/[:\\/?*[\]]/g, "").trim().slice(0, 31) || "Categoria";
+      const ws = workbook.addWorksheet(sheetName);
+
+      ws.columns = [
+        { width: 12 },
+        { width: 42 },
+        { width: 16 },
+        { width: 16 },
+        { width: 14 },
+        { width: 12 },
+      ];
+
+      // Linha 1: identificação da categoria e período
+      const titleRow = ws.addRow([`Categoria: ${cat.name}  |  Período: ${periodo}`]);
+      ws.mergeCells(1, 1, 1, 6);
+      titleRow.font = { bold: true, size: 12 };
+
+      // Linha 2: cabeçalhos
+      const headerRow = ws.addRow(["Data", "Descrição", "Responsável", "Cartão", "Valor", "Status"]);
+      headerRow.font = { bold: true, color: { argb: "FFFFFFFF" } };
+      headerRow.eachCell((cell) => {
+        cell.fill = { type: "pattern", pattern: "solid", fgColor: { argb: "FF4472C4" } };
+      });
+
+      // Linhas de dados (mesma fonte e ordem do modal)
+      rows.forEach((t) => {
+        const [y, m, d] = t.data.split("-").map(Number);
+        const r = ws.addRow([
+          new Date(y, m - 1, d),
+          t.descricao,
+          t.responsavel,
+          getCartaoNome(t.cartao),
+          Number(t.valor),
+          t.status,
+        ]);
+        r.getCell(1).numFmt = "dd/mm/yyyy";
+        r.getCell(5).numFmt = '"R$"#,##0.00';
+      });
+
+      // Linha de total destacada
+      const totalRow = ws.addRow(["", "", "", "TOTAL", cat.value, ""]);
+      totalRow.font = { bold: true };
+      totalRow.getCell(5).numFmt = '"R$"#,##0.00';
+      totalRow.eachCell((cell) => {
+        cell.fill = { type: "pattern", pattern: "solid", fgColor: { argb: "FFFFF2CC" } };
+      });
+
+      // Filtros nas colunas
+      ws.autoFilter = { from: { row: 2, column: 1 }, to: { row: 2, column: 6 } };
+    });
+
+    const buffer = await workbook.xlsx.writeBuffer();
+    const blob = new Blob([buffer], {
+      type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `Relatorio_Categorias_${format(currentDate, "yyyy-MM")}.xlsx`;
+    link.click();
+    URL.revokeObjectURL(url);
+  };
 
   const despesas = useMemo(() => {
     return transactions.filter((t) => t.tipo !== "receita");
