@@ -77,8 +77,13 @@ export default function ComprasAgrupadas() {
   const [expandedCards, setExpandedCards] = useState<Record<string, boolean>>({});
   const [searchByCard, setSearchByCard] = useState<Record<string, string>>({});
   const [globalSearch, setGlobalSearch] = useState("");
+  const [responsavelFilter, setResponsavelFilter] = useState("Todos");
 
   const compras = transactions.filter((t) => t.tipo === "compra");
+  const comprasFiltradas = useMemo(
+    () => compras.filter((c) => responsavelFilter === "Todos" || c.responsavel === responsavelFilter),
+    [compras, responsavelFilter]
+  );
 
   const cartoesMap = useMemo(() => {
     return cartoes.reduce((acc, cartao) => {
@@ -89,7 +94,7 @@ export default function ComprasAgrupadas() {
 
   const comprasPorCartao = useMemo(() => {
     const grupos: Record<string, any[]> = {};
-    compras.forEach((compra) => {
+    comprasFiltradas.forEach((compra) => {
       const cartaoId = compra.cartao || "sem-cartao";
       if (!grupos[cartaoId]) grupos[cartaoId] = [];
 
@@ -103,15 +108,15 @@ export default function ComprasAgrupadas() {
       }
     });
     // Remove empty groups when filtering
-    if (globalSearch) {
+    if (globalSearch || responsavelFilter !== "Todos") {
       Object.keys(grupos).forEach((key) => {
         if (grupos[key].length === 0) delete grupos[key];
       });
     }
     return grupos;
-  }, [compras, globalSearch]);
+  }, [comprasFiltradas, globalSearch, responsavelFilter]);
 
-  const totalCompras = compras.reduce((sum, c) => sum + Number(c.valor), 0);
+  const totalCompras = comprasFiltradas.reduce((sum, c) => sum + Number(c.valor), 0);
 
   const handleVencimentoSave = async (cartaoId: string, vencimento: number | null) => {
     try {
