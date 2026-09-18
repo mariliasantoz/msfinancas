@@ -117,13 +117,13 @@ export default function ComprasAgrupadas() {
       }
     });
     // Remove empty groups when filtering
-    if (globalSearch || responsavelFilter !== "Todos") {
+    if (globalSearch || responsavelFilter !== "Todos" || categoriaFilter !== "Todas") {
       Object.keys(grupos).forEach((key) => {
         if (grupos[key].length === 0) delete grupos[key];
       });
     }
     return grupos;
-  }, [comprasFiltradas, globalSearch, responsavelFilter]);
+  }, [comprasFiltradas, globalSearch, responsavelFilter, categoriaFilter]);
 
   const totalCompras = comprasFiltradas.reduce((sum, c) => sum + Number(c.valor), 0);
 
