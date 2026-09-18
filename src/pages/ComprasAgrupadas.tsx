@@ -78,11 +78,20 @@ export default function ComprasAgrupadas() {
   const [searchByCard, setSearchByCard] = useState<Record<string, string>>({});
   const [globalSearch, setGlobalSearch] = useState("");
   const [responsavelFilter, setResponsavelFilter] = useState("Todos");
+  const [categoriaFilter, setCategoriaFilter] = useState("Todas");
 
   const compras = transactions.filter((t) => t.tipo === "compra");
+  const categoriasDisponiveis = useMemo(
+    () => Array.from(new Set(compras.map((c) => c.categoria).filter(Boolean))).sort((a, b) => a.localeCompare(b, "pt-BR")),
+    [compras]
+  );
   const comprasFiltradas = useMemo(
-    () => compras.filter((c) => responsavelFilter === "Todos" || c.responsavel === responsavelFilter),
-    [compras, responsavelFilter]
+    () => compras.filter(
+      (c) =>
+        (responsavelFilter === "Todos" || c.responsavel === responsavelFilter) &&
+        (categoriaFilter === "Todas" || c.categoria === categoriaFilter)
+    ),
+    [compras, responsavelFilter, categoriaFilter]
   );
 
   const cartoesMap = useMemo(() => {
@@ -108,13 +117,13 @@ export default function ComprasAgrupadas() {
       }
     });
     // Remove empty groups when filtering
-    if (globalSearch || responsavelFilter !== "Todos") {
+    if (globalSearch || responsavelFilter !== "Todos" || categoriaFilter !== "Todas") {
       Object.keys(grupos).forEach((key) => {
         if (grupos[key].length === 0) delete grupos[key];
       });
     }
     return grupos;
-  }, [comprasFiltradas, globalSearch, responsavelFilter]);
+  }, [comprasFiltradas, globalSearch, responsavelFilter, categoriaFilter]);
 
   const totalCompras = comprasFiltradas.reduce((sum, c) => sum + Number(c.valor), 0);
 
@@ -220,6 +229,19 @@ export default function ComprasAgrupadas() {
                   {["Todos", "Liana", "Stefany", "Marília", "Nosso ❤️"].map((resp) => (
                     <SelectItem key={resp} value={resp}>
                       {resp}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <Select value={categoriaFilter} onValueChange={setCategoriaFilter}>
+                <SelectTrigger className="w-[170px]">
+                  <SelectValue placeholder="Categoria" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="Todas">Todas</SelectItem>
+                  {categoriasDisponiveis.map((cat) => (
+                    <SelectItem key={cat} value={cat}>
+                      {cat}
                     </SelectItem>
                   ))}
                 </SelectContent>
