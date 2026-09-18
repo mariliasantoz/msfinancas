@@ -78,11 +78,20 @@ export default function ComprasAgrupadas() {
   const [searchByCard, setSearchByCard] = useState<Record<string, string>>({});
   const [globalSearch, setGlobalSearch] = useState("");
   const [responsavelFilter, setResponsavelFilter] = useState("Todos");
+  const [categoriaFilter, setCategoriaFilter] = useState("Todas");
 
   const compras = transactions.filter((t) => t.tipo === "compra");
+  const categoriasDisponiveis = useMemo(
+    () => Array.from(new Set(compras.map((c) => c.categoria).filter(Boolean))).sort((a, b) => a.localeCompare(b, "pt-BR")),
+    [compras]
+  );
   const comprasFiltradas = useMemo(
-    () => compras.filter((c) => responsavelFilter === "Todos" || c.responsavel === responsavelFilter),
-    [compras, responsavelFilter]
+    () => compras.filter(
+      (c) =>
+        (responsavelFilter === "Todos" || c.responsavel === responsavelFilter) &&
+        (categoriaFilter === "Todas" || c.categoria === categoriaFilter)
+    ),
+    [compras, responsavelFilter, categoriaFilter]
   );
 
   const cartoesMap = useMemo(() => {
