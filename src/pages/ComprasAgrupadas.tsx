@@ -7,6 +7,7 @@ import { useMonth } from "@/contexts/MonthContext";
 import { useView } from "@/contexts/ViewContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Plus, Pencil, Trash2, CreditCard, ChevronDown, ChevronUp, Search, Calendar } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -76,8 +77,13 @@ export default function ComprasAgrupadas() {
   const [expandedCards, setExpandedCards] = useState<Record<string, boolean>>({});
   const [searchByCard, setSearchByCard] = useState<Record<string, string>>({});
   const [globalSearch, setGlobalSearch] = useState("");
+  const [responsavelFilter, setResponsavelFilter] = useState("Todos");
 
   const compras = transactions.filter((t) => t.tipo === "compra");
+  const comprasFiltradas = useMemo(
+    () => compras.filter((c) => responsavelFilter === "Todos" || c.responsavel === responsavelFilter),
+    [compras, responsavelFilter]
+  );
 
   const cartoesMap = useMemo(() => {
     return cartoes.reduce((acc, cartao) => {
@@ -88,7 +94,7 @@ export default function ComprasAgrupadas() {
 
   const comprasPorCartao = useMemo(() => {
     const grupos: Record<string, any[]> = {};
-    compras.forEach((compra) => {
+    comprasFiltradas.forEach((compra) => {
       const cartaoId = compra.cartao || "sem-cartao";
       if (!grupos[cartaoId]) grupos[cartaoId] = [];
 
@@ -102,15 +108,15 @@ export default function ComprasAgrupadas() {
       }
     });
     // Remove empty groups when filtering
-    if (globalSearch) {
+    if (globalSearch || responsavelFilter !== "Todos") {
       Object.keys(grupos).forEach((key) => {
         if (grupos[key].length === 0) delete grupos[key];
       });
     }
     return grupos;
-  }, [compras, globalSearch]);
+  }, [comprasFiltradas, globalSearch, responsavelFilter]);
 
-  const totalCompras = compras.reduce((sum, c) => sum + Number(c.valor), 0);
+  const totalCompras = comprasFiltradas.reduce((sum, c) => sum + Number(c.valor), 0);
 
   const handleVencimentoSave = async (cartaoId: string, vencimento: number | null) => {
     try {
@@ -196,14 +202,28 @@ export default function ComprasAgrupadas() {
               <p className="text-sm font-medium text-muted-foreground">Total de Compras</p>
               <p className="text-4xl font-bold text-nosso-foreground">{formatCurrency(totalCompras, showValues)}</p>
             </div>
-            <div className="relative flex-1 max-w-sm">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              <Input
-                placeholder="Buscar em todos os cartões..."
-                value={globalSearch}
-                onChange={(e) => setGlobalSearch(e.target.value)}
-                className="pl-9"
-              />
+            <div className="flex items-center gap-2 flex-1 max-w-md">
+              <div className="relative flex-1">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Input
+                  placeholder="Buscar em todos os cartões..."
+                  value={globalSearch}
+                  onChange={(e) => setGlobalSearch(e.target.value)}
+                  className="pl-9"
+                />
+              </div>
+              <Select value={responsavelFilter} onValueChange={setResponsavelFilter}>
+                <SelectTrigger className="w-[160px]">
+                  <SelectValue placeholder="Responsável" />
+                </SelectTrigger>
+                <SelectContent>
+                  {["Todos", "Liana", "Stefany", "Marília", "Nosso ❤️"].map((resp) => (
+                    <SelectItem key={resp} value={resp}>
+                      {resp}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
           </div>
         </CardContent>
