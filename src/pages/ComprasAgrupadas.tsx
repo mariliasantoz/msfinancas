@@ -202,14 +202,28 @@ export default function ComprasAgrupadas() {
               <p className="text-sm font-medium text-muted-foreground">Total de Compras</p>
               <p className="text-4xl font-bold text-nosso-foreground">{formatCurrency(totalCompras, showValues)}</p>
             </div>
-            <div className="relative flex-1 max-w-sm">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              <Input
-                placeholder="Buscar em todos os cartões..."
-                value={globalSearch}
-                onChange={(e) => setGlobalSearch(e.target.value)}
-                className="pl-9"
-              />
+            <div className="flex items-center gap-2 flex-1 max-w-md">
+              <div className="relative flex-1">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Input
+                  placeholder="Buscar em todos os cartões..."
+                  value={globalSearch}
+                  onChange={(e) => setGlobalSearch(e.target.value)}
+                  className="pl-9"
+                />
+              </div>
+              <Select value={responsavelFilter} onValueChange={setResponsavelFilter}>
+                <SelectTrigger className="w-[160px]">
+                  <SelectValue placeholder="Responsável" />
+                </SelectTrigger>
+                <SelectContent>
+                  {["Todos", "Liana", "Stefany", "Marília", "Nosso ❤️"].map((resp) => (
+                    <SelectItem key={resp} value={resp}>
+                      {resp}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
           </div>
         </CardContent>
