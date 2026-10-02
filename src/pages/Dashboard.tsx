@@ -160,6 +160,40 @@ export default function Dashboard() {
         </CardContent>
       </Card>
 
+      <Card className="shadow-lg border-2 border-stefany/20">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <TrendingDown className="h-5 w-5 text-stefany-foreground" />
+            Despesas por Grupo
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+            {(() => {
+              const desp = transactions.filter((t) => t.tipo !== "receita");
+              const sum = (list: typeof desp) => list.reduce((s, t) => s + Number(t.valor), 0);
+              const itens = [
+                { name: "Contas (Fixas/Variáveis)", value: sum(desp.filter((t) => t.tipo === "conta" || t.tipo === "despesa")) },
+                { name: "Cartões", value: sum(desp.filter((t) => t.tipo === "compra")) },
+                { name: "Transporte", value: sum(desp.filter((t) => t.categoria === "Transporte")) },
+                { name: "Rebuceteio", value: sum(desp.filter((t) => t.categoria === "Rebuceteio")) },
+                { name: "Vendas", value: sum(desp.filter((t) => t.categoria === "Vendas")) },
+              ];
+              return itens.map((cat) => (
+                <div key={cat.name} className="p-4 rounded-lg bg-stefany/10 border border-stefany/20">
+                  <p className="text-sm font-medium text-muted-foreground truncate" title={cat.name}>
+                    Total de {cat.name}
+                  </p>
+                  <p className="text-xl font-bold text-stefany-foreground mt-1">
+                    {formatCurrency(cat.value, showValues)}
+                  </p>
+                </div>
+              ));
+            })()}
+          </div>
+        </CardContent>
+      </Card>
+
 
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
