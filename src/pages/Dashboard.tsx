@@ -160,6 +160,39 @@ export default function Dashboard() {
         </CardContent>
       </Card>
 
+      <Card className="shadow-lg border-2 border-liana/20">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Clock className="h-5 w-5 text-liana-foreground" />
+            Vencimentos dos Cartões
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+            {[...cartoes]
+              .sort((a, b) => (a.vencimento ?? 99) - (b.vencimento ?? 99))
+              .map((c) => {
+                const total = transactions
+                  .filter((t) => t.tipo === "compra" && t.cartao === c.id)
+                  .reduce((s, t) => s + Number(t.valor), 0);
+                return (
+                  <div key={c.id} className="p-4 rounded-lg bg-liana/10 border border-liana/20">
+                    <p className="text-sm font-medium text-muted-foreground truncate" title={c.nome}>
+                      {c.nome}
+                    </p>
+                    <p className="text-xl font-bold text-liana-foreground mt-1">
+                      {c.vencimento ? `DIA ${String(c.vencimento).padStart(2, "0")}` : "DIA --"}
+                    </p>
+                    <p className="text-sm text-muted-foreground mt-1">
+                      {formatCurrency(total, showValues)}
+                    </p>
+                  </div>
+                );
+              })}
+          </div>
+        </CardContent>
+      </Card>
+
       <Card className="shadow-lg border-2 border-stefany/20">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
