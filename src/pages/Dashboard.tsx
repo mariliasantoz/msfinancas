@@ -160,39 +160,6 @@ export default function Dashboard() {
         </CardContent>
       </Card>
 
-      <Card className="shadow-lg border-2 border-liana/20">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Clock className="h-5 w-5 text-liana-foreground" />
-            Vencimentos dos Cartões
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
-            {[...cartoes]
-              .sort((a, b) => (a.vencimento ?? 99) - (b.vencimento ?? 99))
-              .map((c) => {
-                const total = transactions
-                  .filter((t) => t.tipo === "compra" && t.cartao === c.id)
-                  .reduce((s, t) => s + Number(t.valor), 0);
-                return (
-                  <div key={c.id} className="p-4 rounded-lg bg-liana/10 border border-liana/20">
-                    <p className="text-sm font-medium text-muted-foreground truncate" title={c.nome}>
-                      {c.nome}
-                    </p>
-                    <p className="text-xl font-bold text-liana-foreground mt-1">
-                      {c.vencimento ? `DIA ${String(c.vencimento).padStart(2, "0")}` : "DIA --"}
-                    </p>
-                    <p className="text-sm text-muted-foreground mt-1">
-                      {formatCurrency(total, showValues)}
-                    </p>
-                  </div>
-                );
-              })}
-          </div>
-        </CardContent>
-      </Card>
-
       <Card className="shadow-lg border-2 border-stefany/20">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
@@ -223,6 +190,59 @@ export default function Dashboard() {
                 </div>
               ));
             })()}
+          </div>
+        </CardContent>
+      </Card>
+
+      <Card className="shadow-lg border-2 border-liana/20">
+        <CardHeader className="pb-3">
+          <CardTitle className="flex items-center gap-2">
+            <Clock className="h-5 w-5 text-liana-foreground" />
+            Vencimentos dos Cartões
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8 gap-3">
+            {[...cartoes]
+              .sort((a, b) => (a.vencimento ?? 99) - (b.vencimento ?? 99))
+              .map((c) => {
+                const n = c.nome.toLowerCase();
+                const cor =
+                  n.includes("nubank") ? "#820AD1" :
+                  n.includes("santander") ? "#CC0000" :
+                  n.includes("caixa") ? "#005CA9" :
+                  n.includes("signature") ? "#000B40" :
+                  n.includes("uniclass") || n.includes("itaú") || n.includes("itau") ? "#0520B7" :
+                  n.includes("amazon") ? "#232F3E" :
+                  n.includes("bradesco") || n.includes("grafite") ? "#4A4A4A" :
+                  n.includes("mercado") ? "#00A6FF" : "#475569";
+                const compras = transactions.filter((t) => t.tipo === "compra" && t.cartao === c.id);
+                const total = compras.reduce((s, t) => s + Number(t.valor), 0);
+                const pago = compras.length > 0 && compras.every((t) => t.status === "Pago");
+                return (
+                  <div
+                    key={c.id}
+                    className="px-3 py-2 rounded-lg shadow-sm border border-white/10"
+                    style={{ backgroundColor: cor, color: "#FFFFFF" }}
+                  >
+                    <div className="flex items-center justify-between gap-1">
+                      <p className="text-[15px] font-semibold truncate" title={c.nome}>{c.nome}</p>
+                      {pago && (
+                        <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded-full bg-white/20 whitespace-nowrap">
+                          ✓ Pago
+                        </span>
+                      )}
+                    </div>
+                    <p className="leading-tight mt-0.5">
+                      <span className="text-[11px] font-medium opacity-80 mr-1">DIA</span>
+                      <span className="text-2xl font-extrabold">
+                        {c.vencimento ? String(c.vencimento).padStart(2, "0") : "--"}
+                      </span>
+                    </p>
+                    <p className="text-xs opacity-90">{formatCurrency(total, showValues)}</p>
+                  </div>
+                );
+              })}
           </div>
         </CardContent>
       </Card>
